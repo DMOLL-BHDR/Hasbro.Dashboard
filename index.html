@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hasbro Trailer Network Control Tower — Backhaul Direct</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0E2A47; --navy-2:#16395E; --navy-3:#1F4877;
+  --lime:#B5D334; --lime-dark:#7E9A14;
+  --bg:#F3F5F8; --surface:#FFFFFF; --line:#DEE5EC; --line-2:#CBD5DE;
+  --text:#17242F; --muted:#5D6C7A; --faint:#8A97A3;
+  --green:#177A4C; --green-bg:#E6F3EC; --green-line:#BCDECB;
+  --amber:#8A6400; --amber-bg:#FBF3D9; --amber-line:#E8D79A;
+  --orange:#B4490F; --orange-bg:#FCEBDF; --orange-line:#F0C5A8;
+  --red:#B42324; --red-bg:#FBE7E7; --red-line:#EFB9B9;
+  --blue:#0B5FA5; --blue-bg:#E7F1FA; --blue-line:#B9D5EE;
+  --hasbro:#0057B8;
+  --radius:8px; --radius-sm:6px;
+  --shadow:0 1px 2px rgba(14,42,71,.06),0 2px 8px rgba(14,42,71,.05);
+  --shadow-lg:0 8px 30px rgba(14,42,71,.18);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:'IBM Plex Sans',system-ui,-apple-system,Segoe UI,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.45}
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace}
+button{font-family:inherit;cursor:pointer}
+input,select{font-family:inherit;font-size:13px}
+h1,h2,h3,h4{font-weight:600;line-height:1.25}
+a{color:var(--blue)}
+
+/* ---------- LOGIN ---------- */
+#loginView{min-height:100vh;display:flex;align-items:stretch}
+.login-left{flex:1.1;background:linear-gradient(160deg,#0B2038 0%,#0E2A47 55%,#123456 100%);color:#fff;display:flex;flex-direction:column;justify-content:space-between;padding:56px 64px;position:relative;overflow:hidden}
+.login-left::after{content:"";position:absolute;right:-140px;bottom:-140px;width:460px;height:460px;border:1px solid rgba(181,211,52,.25);border-radius:50%}
+.login-left::before{content:"";position:absolute;right:-60px;bottom:-60px;width:300px;height:300px;border:1px solid rgba(181,211,52,.4);border-radius:50%}
+.bd-word{font-weight:700;letter-spacing:.14em;font-size:15px}
+.bd-word .accent{color:var(--lime)}
+.login-hero h1{font-size:36px;font-weight:700;max-width:520px;letter-spacing:-.01em}
+.login-hero p{margin-top:16px;max-width:480px;color:#B9C7D6;font-size:15px;line-height:1.6}
+.login-tags{display:flex;gap:10px;margin-top:28px;flex-wrap:wrap}
+.login-tag{border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:5px 14px;font-size:12px;color:#D7E1EB;letter-spacing:.02em}
+.login-foot{font-size:12px;color:#7E93A9}
+.login-right{width:480px;background:var(--surface);display:flex;flex-direction:column;justify-content:center;padding:56px;border-left:1px solid var(--line)}
+.tenant-chip{display:inline-flex;align-items:center;gap:8px;background:var(--blue-bg);border:1px solid var(--blue-line);color:var(--hasbro);font-weight:600;font-size:12px;padding:5px 12px;border-radius:999px;letter-spacing:.04em}
+.tenant-chip .dot{width:8px;height:8px;border-radius:50%;background:var(--hasbro)}
+.login-right h2{font-size:22px;margin:18px 0 4px}
+.login-right .sub{color:var(--muted);font-size:13px;margin-bottom:26px}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px;letter-spacing:.03em;text-transform:uppercase}
+.field{margin-bottom:16px}
+.field input,.field select{width:100%;padding:10px 12px;border:1px solid var(--line-2);border-radius:var(--radius-sm);background:#fff;color:var(--text)}
+.field input:focus,.field select:focus{outline:2px solid var(--navy-3);outline-offset:1px;border-color:var(--navy-3)}
+.role-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.role-opt{border:1px solid var(--line-2);border-radius:var(--radius-sm);padding:10px 12px;font-size:12.5px;font-weight:500;text-align:left;background:#fff;color:var(--text);transition:.12s}
+.role-opt:hover{border-color:var(--navy-3)}
+.role-opt.sel{border-color:var(--navy);background:var(--navy);color:#fff}
+.role-opt .r-org{display:block;font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);margin-bottom:2px}
+.role-opt.sel .r-org{color:var(--lime)}
+.btn-primary{width:100%;background:var(--navy);color:#fff;font-weight:600;border:none;border-radius:var(--radius-sm);padding:12px;font-size:14px;margin-top:8px}
+.btn-primary:hover{background:var(--navy-2)}
+.login-note{margin-top:18px;font-size:12px;color:var(--faint);line-height:1.5}
+
+/* ---------- APP SHELL ---------- */
+#appView{display:none;min-height:100vh;flex-direction:column}
+.topbar{background:var(--navy);color:#fff;display:flex;align-items:center;gap:18px;padding:0 24px;height:56px;position:sticky;top:0;z-index:60}
+.topbar .brand{font-weight:700;letter-spacing:.12em;font-size:13px;white-space:nowrap}
+.topbar .brand .accent{color:var(--lime)}
+.topbar .divider{width:1px;height:24px;background:rgba(255,255,255,.2)}
+.topbar .tenant{display:flex;align-items:center;gap:8px;font-weight:600;font-size:13px}
+.topbar .tenant .hb{background:var(--hasbro);border-radius:4px;padding:2px 8px;font-size:11px;letter-spacing:.05em}
+.topbar .spacer{flex:1}
+.topbar .clock{font-size:12px;color:#AFC0D1}
+.role-pill{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:4px 12px;font-size:12px;color:#E4ECF4}
+.role-pill b{color:var(--lime)}
+.btn-ghost{background:transparent;border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:var(--radius-sm);padding:6px 12px;font-size:12px}
+.btn-ghost:hover{background:rgba(255,255,255,.1)}
+.demo-banner{background:var(--amber-bg);border-bottom:1px solid var(--amber-line);color:#6E5100;font-size:12.5px;padding:7px 24px;display:flex;gap:8px;align-items:center}
+.demo-banner b{font-weight:600}
+.navtabs{background:var(--surface);border-bottom:1px solid var(--line);display:flex;gap:2px;padding:0 24px;position:sticky;top:56px;z-index:50;overflow-x:auto}
+.navtab{border:none;background:none;padding:13px 16px 11px;font-size:13.5px;font-weight:500;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap}
+.navtab:hover{color:var(--text)}
+.navtab.active{color:var(--navy);font-weight:600;border-bottom-color:var(--lime-dark)}
+.navtab .count{background:var(--red);color:#fff;border-radius:999px;font-size:10.5px;padding:1px 6px;margin-left:6px;font-weight:600}
+main{flex:1;padding:22px 24px 60px;max-width:1520px;width:100%;margin:0 auto}
+.screen{display:none}
+.screen.active{display:block}
+.screen-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:16px;flex-wrap:wrap}
+.screen-head h2{font-size:19px}
+.screen-head .desc{color:var(--muted);font-size:13px;margin-top:3px;max-width:760px}
+.head-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+
+/* ---------- GENERIC ---------- */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.card-pad{padding:16px 18px}
+.card-title{font-size:13px;font-weight:600;letter-spacing:.02em;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.card-title .hint{font-weight:400;color:var(--faint);font-size:12px}
+.grid{display:grid;gap:14px}
+.kpi-grid{grid-template-columns:repeat(auto-fit,minmax(168px,1fr))}
+.kpi{padding:14px 16px}
+.kpi .k-label{font-size:11.5px;font-weight:600;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.kpi .k-value{font-size:26px;font-weight:700;margin-top:4px;font-family:'IBM Plex Mono',monospace;letter-spacing:-.02em}
+.kpi .k-sub{font-size:12px;color:var(--muted);margin-top:2px}
+.kpi.k-alert .k-value{color:var(--red)}
+.kpi.k-good .k-value{color:var(--green)}
+.kpi.k-warn .k-value{color:var(--orange)}
+.chip{display:inline-flex;align-items:center;gap:5px;border-radius:999px;font-size:11.5px;font-weight:600;padding:3px 10px;border:1px solid;white-space:nowrap}
+.chip .cdot{width:7px;height:7px;border-radius:50%}
+.chip-green{background:var(--green-bg);color:var(--green);border-color:var(--green-line)}
+.chip-green .cdot{background:var(--green)}
+.chip-amber{background:var(--amber-bg);color:var(--amber);border-color:var(--amber-line)}
+.chip-amber .cdot{background:var(--amber)}
+.chip-orange{background:var(--orange-bg);color:var(--orange);border-color:var(--orange-line)}
+.chip-orange .cdot{background:var(--orange)}
+.chip-red{background:var(--red-bg);color:var(--red);border-color:var(--red-line)}
+.chip-red .cdot{background:var(--red)}
+.chip-blue{background:var(--blue-bg);color:var(--blue);border-color:var(--blue-line)}
+.chip-blue .cdot{background:var(--blue)}
+.chip-gray{background:#EEF1F4;color:var(--muted);border-color:var(--line-2)}
+.chip-gray .cdot{background:var(--faint)}
+.chip-navy{background:#E8EDF4;color:var(--navy);border-color:#C4D0DE}
+.chip-navy .cdot{background:var(--navy)}
+.chip-outline{background:#fff;color:var(--muted);border-style:dashed;border-color:var(--line-2)}
+table{width:100%;border-collapse:collapse;font-size:12.8px}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600;text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);background:#F8FAFC;white-space:nowrap;position:sticky;top:0}
+td{padding:9px 10px;border-bottom:1px solid #EDF1F5;vertical-align:middle;white-space:nowrap}
+tr.rowlink{cursor:pointer}
+tr.rowlink:hover td{background:#F5F8FB}
+.tbl-wrap{overflow:auto;border-radius:var(--radius)}
+.num{font-family:'IBM Plex Mono',monospace;font-size:12.3px}
+.pos{color:var(--green);font-weight:600}
+.neg{color:var(--red);font-weight:600}
+.select,.inputbox{padding:7px 10px;border:1px solid var(--line-2);border-radius:var(--radius-sm);background:#fff;font-size:12.5px;color:var(--text)}
+.btn{padding:7px 14px;border-radius:var(--radius-sm);border:1px solid var(--line-2);background:#fff;font-size:12.5px;font-weight:500;color:var(--text)}
+.btn:hover{border-color:var(--navy-3);color:var(--navy)}
+.btn-navy{background:var(--navy);border-color:var(--navy);color:#fff;font-weight:600}
+.btn-navy:hover{background:var(--navy-2);color:#fff}
+.btn-lime{background:var(--lime);border-color:var(--lime);color:#243004;font-weight:600}
+.btn-lime:hover{background:#A8C62B}
+.btn-sm{padding:4px 10px;font-size:11.5px}
+.seg{display:inline-flex;border:1px solid var(--line-2);border-radius:var(--radius-sm);overflow:hidden;background:#fff}
+.seg button{border:none;background:#fff;padding:7px 13px;font-size:12.5px;font-weight:500;color:var(--muted);border-right:1px solid var(--line)}
+.seg button:last-child{border-right:none}
+.seg button.on{background:var(--navy);color:#fff;font-weight:600}
+.mini-label{font-size:11px;font-weight:600;color:var(--faint);letter-spacing:.06em;text-transform:uppercase}
+.tip{position:relative;display:inline-flex}
+.tip .tipbox{display:none;position:absolute;top:calc(100% + 8px);left:0;z-index:80;background:var(--navy);color:#fff;font-size:12px;line-height:1.6;padding:12px 14px;border-radius:var(--radius-sm);width:320px;box-shadow:var(--shadow-lg);white-space:normal}
+.tip:hover .tipbox,.tip:focus-within .tipbox{display:block}
+.info-btn{width:18px;height:18px;border-radius:50%;border:1px solid var(--line-2);background:#fff;color:var(--muted);font-size:11px;font-weight:700;line-height:1;display:inline-flex;align-items:center;justify-content:center}
+.section-gap{margin-top:18px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:1080px){.two-col{grid-template-columns:1fr}.login-left{display:none}.login-right{width:100%}}
+
+/* facility cards */
+.fac-grid{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.fac-card{padding:16px;cursor:pointer;transition:.12s;position:relative}
+.fac-card:hover{border-color:var(--navy-3);box-shadow:0 3px 14px rgba(14,42,71,.12)}
+.fac-card h4{font-size:14.5px}
+.fac-card .fac-loc{font-size:12px;color:var(--muted)}
+.fac-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px}
+.fac-stat .v{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:16px}
+.fac-stat .l{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;font-weight:600}
+.fac-bar{height:6px;border-radius:3px;background:#EBEFF3;margin-top:12px;overflow:hidden}
+.fac-bar>div{height:100%;border-radius:3px}
+.fac-foot{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:11.5px;color:var(--muted)}
+
+/* status board */
+.status-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.st-cell{border:1px solid var(--line);border-radius:var(--radius-sm);padding:9px 11px;background:#fff}
+.st-cell .sv{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:17px}
+.st-cell .sl{font-size:11px;color:var(--muted);margin-top:1px;line-height:1.3;white-space:normal}
+.st-cell.warn{border-color:var(--orange-line);background:var(--orange-bg)}
+.st-cell.warn .sv{color:var(--orange)}
+.st-cell.bad{border-color:var(--red-line);background:var(--red-bg)}
+.st-cell.bad .sv{color:var(--red)}
+
+/* map */
+.map-wrap{position:relative}
+.map-legend{display:flex;gap:14px;flex-wrap:wrap;padding:10px 16px;border-top:1px solid var(--line);font-size:11.5px;color:var(--muted);align-items:center}
+.lg{display:inline-flex;align-items:center;gap:6px}
+.lg .sq{width:11px;height:11px;background:var(--navy);border-radius:2px}
+.lg .ci{width:9px;height:9px;background:#7E93A9;border-radius:50%}
+.lg .di{width:10px;height:10px;background:var(--lime-dark);transform:rotate(45deg);border-radius:2px}
+.lg .ln-solid{width:22px;height:0;border-top:2px solid var(--navy-3)}
+.lg .ln-dash{width:22px;height:0;border-top:2px dashed var(--lime-dark)}
+.lg .wt{width:10px;height:10px;border-radius:50%;background:var(--orange)}
+.mapnode{cursor:pointer}
+svg text{font-family:'IBM Plex Sans',sans-serif}
+
+/* drawers & modals */
+.overlay{position:fixed;inset:0;background:rgba(12,26,42,.42);z-index:90;display:none}
+.overlay.open{display:block}
+.drawer{position:fixed;top:0;right:-720px;width:700px;max-width:96vw;height:100vh;background:var(--surface);z-index:95;box-shadow:var(--shadow-lg);transition:right .22s ease;display:flex;flex-direction:column}
+.drawer.open{right:0}
+.drawer-head{padding:18px 22px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.drawer-head h3{font-size:16px}
+.drawer-head .sub{font-size:12.5px;color:var(--muted);margin-top:2px}
+.drawer-body{flex:1;overflow-y:auto;padding:18px 22px}
+.x-btn{border:1px solid var(--line-2);background:#fff;border-radius:var(--radius-sm);width:30px;height:30px;font-size:15px;color:var(--muted)}
+.x-btn:hover{color:var(--text);border-color:var(--navy-3)}
+.kv{display:grid;grid-template-columns:170px 1fr;gap:6px 14px;font-size:12.8px}
+.kv dt{color:var(--muted)}
+.kv dd{font-weight:500}
+.subhead{font-size:11.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--faint);margin:20px 0 8px}
+.subhead:first-child{margin-top:0}
+.event{display:flex;gap:12px;padding:8px 0;border-bottom:1px solid #EFF3F6;font-size:12.5px}
+.event .e-time{font-family:'IBM Plex Mono',monospace;color:var(--muted);font-size:11.5px;width:118px;flex-shrink:0}
+.event .e-src{margin-left:auto}
+.modal{position:fixed;inset:0;z-index:96;display:none;align-items:center;justify-content:center;padding:24px}
+.modal.open{display:flex}
+.modal-box{background:#fff;border-radius:10px;box-shadow:var(--shadow-lg);width:860px;max-width:100%;max-height:90vh;display:flex;flex-direction:column}
+.modal-head{padding:16px 22px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+.modal-body{padding:18px 22px;overflow-y:auto}
+
+/* pool health */
+.horizon-note{font-size:12px;color:var(--muted)}
+.pool-card{padding:16px}
+.pool-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:14px}
+.pool-rows{display:grid;grid-template-columns:1fr auto;gap:4px 10px;font-size:12.6px;margin-top:10px}
+.pool-rows .pr-l{color:var(--muted)}
+.pool-rows .pr-v{font-family:'IBM Plex Mono',monospace;text-align:right;font-weight:500}
+.pool-rows .pr-strong{font-weight:700;border-top:1px solid var(--line);padding-top:5px;margin-top:3px}
+.score-wrap{display:flex;align-items:center;gap:10px;margin-top:12px}
+.score-bar{flex:1;height:8px;background:#EBEFF3;border-radius:4px;overflow:hidden}
+.score-bar>div{height:100%;border-radius:4px}
+.score-num{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:14px;width:56px;text-align:right}
+
+/* timeline */
+.tl-wrap{position:relative;overflow-x:auto}
+.tl-inner{min-width:900px;position:relative;padding:8px 0 4px}
+.tl-hours{display:flex;border-bottom:1px solid var(--line);font-size:10.5px;color:var(--faint);padding-left:170px}
+.tl-hours span{flex:1;border-left:1px dashed #E4EAF0;padding:2px 0 4px 5px}
+.tl-lane{display:flex;align-items:center;min-height:64px;border-bottom:1px solid #F0F3F6}
+.tl-lane-label{width:170px;flex-shrink:0;font-size:12px;font-weight:600;padding-left:4px}
+.tl-track{flex:1;position:relative;height:64px}
+.tl-item{position:absolute;height:26px;border-radius:5px;font-size:10.8px;font-weight:600;display:flex;align-items:center;padding:0 8px;color:#fff;background:var(--navy-3);cursor:pointer;white-space:nowrap}
+
+.tl-item.conf-med{background:#4E6E92}
+.tl-item.conf-low{background:#fff;color:var(--muted);border:1.5px dashed var(--line-2)}
+.tl-item:hover{outline:2px solid var(--lime-dark)}
+
+/* recovery queue */
+.esc-1{background:#EEF1F4;color:var(--muted);border-color:var(--line-2)}
+.demo-flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-top:12px}
+.flow-step{border:1px solid var(--line);border-radius:var(--radius-sm);padding:12px;background:#F9FBFD;position:relative}
+.flow-step .fs-n{width:22px;height:22px;border-radius:50%;background:var(--navy);color:#fff;font-size:11.5px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-bottom:8px}
+.flow-step h5{font-size:12.8px;margin-bottom:4px}
+.flow-step p{font-size:12px;color:var(--muted);line-height:1.5}
+
+/* economics */
+.fin-table td:first-child{white-space:normal}
+.awaiting{color:var(--faint);font-style:italic;font-size:12px}
+.assump-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px 14px}
+.assump{display:flex;flex-direction:column;gap:4px}
+.assump label{font-size:11.5px;font-weight:600;color:var(--muted)}
+.assump input{padding:7px 10px;border:1px solid var(--line-2);border-radius:var(--radius-sm);font-family:'IBM Plex Mono',monospace;font-size:12.5px}
+.calc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+.calc-cell{border:1px solid var(--line);border-radius:var(--radius-sm);padding:11px 13px;background:#fff}
+.calc-cell .cl{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.calc-cell .cv{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:17px;margin-top:3px}
+.scenario{opacity:.62;position:relative;padding:16px}
+.scenario .lock{position:absolute;top:12px;right:12px}
+.disclosure{background:var(--blue-bg);border:1px solid var(--blue-line);border-radius:var(--radius);padding:13px 16px;font-size:12.8px;color:#134D7E;line-height:1.55}
+.subtabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin-bottom:16px}
+.subtab{border:none;background:none;padding:9px 14px;font-size:13px;font-weight:500;color:var(--muted);border-bottom:2px solid transparent}
+.subtab.active{color:var(--navy);font-weight:600;border-bottom-color:var(--lime-dark)}
+.checklist{columns:1;font-size:12.8px}
+.checklist li{margin:3px 0 3px 18px}
+.check-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+
+/* LTL */
+details.ltl{border:1px dashed var(--line-2);border-radius:var(--radius);background:#FAFBFC}
+details.ltl summary{padding:13px 18px;cursor:pointer;font-weight:600;font-size:13px;color:var(--muted);list-style:none;display:flex;align-items:center;gap:10px}
+details.ltl summary::-webkit-details-marker{display:none}
+.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--navy);color:#fff;padding:11px 20px;border-radius:8px;font-size:13px;box-shadow:var(--shadow-lg);opacity:0;transition:.25s;z-index:120;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media(max-width:860px){.kv{grid-template-columns:1fr}.drawer{width:100vw}}
+</style>
+</head>
+<body>
+
+<!-- ================= LOGIN ================= -->
+<div id="loginView">
+  <div class="login-left">
+    <div class="bd-word">BACKHAUL <span class="accent">DIRECT</span> &nbsp;·&nbsp; CONTROL TOWER</div>
+    <div class="login-hero">
+      <h1>Hasbro Trailer Network Control Tower</h1>
+      <p>A managed trailer-circulation, recovery, forecasting, and network-intelligence platform. One source of truth for every controlled trailer across Midway, Elwood, Chino, and East Longmeadow — powered and operated by Backhaul Direct.</p>
+      <div class="login-tags">
+        <span class="login-tag">Trailer circulation</span>
+        <span class="login-tag">Recovery execution</span>
+        <span class="login-tag">Equipment forecasting</span>
+        <span class="login-tag">Network intelligence</span>
+      </div>
+    </div>
+    <div class="login-foot">© 2026 Backhaul Direct, LLC · Indianapolis, IN · Secure multi-tenant environment</div>
+  </div>
+  <div class="login-right">
+    <span class="tenant-chip"><span class="dot"></span>HASBRO TRAILER NETWORK · POWERED BY BACKHAUL DIRECT</span>
+    <h2>Sign in to your workspace</h2>
+    <div class="sub">Role-based access · Prototype simulates authentication</div>
+    <div class="field">
+      <label>Email</label>
+      <input type="text" id="loginEmail" value="t.morrissey@hasbro.com">
+    </div>
+    <div class="field">
+      <label>Select role</label>
+      <div class="role-grid" id="roleGrid"></div>
+    </div>
+    <button class="btn-primary" onclick="doLogin()">Enter Control Tower</button>
+    <div class="login-note">Executives see the full Hasbro network. Facility users see authorized facilities. Carrier and yard partners see only trailers and work assigned to them. Backhaul Direct administrators manage users, locations, rules, and integrations.</div>
+  </div>
+</div>
+
+<!-- ================= APP ================= -->
+<div id="appView">
+  <div class="topbar">
+    <div class="brand">BACKHAUL <span class="accent">DIRECT</span></div>
+    <div class="divider"></div>
+    <div class="tenant"><span class="hb">HASBRO</span> Trailer Network Control Tower</div>
+    <div class="spacer"></div>
+    <span class="clock mono">Wed, Jul 15 2026 · 07:30 ET</span>
+    <span class="role-pill" id="rolePill"></span>
+    <button class="btn-ghost" onclick="openAnalytics()">Network analytics</button>
+    <button class="btn-ghost" onclick="logout()">Switch view</button>
+  </div>
+  <div class="demo-banner">⚠ <b>Demonstration environment</b> — financial and operating results are based on synthetic data pending Hasbro's six-month dataset and current-cost baseline.</div>
+  <div class="navtabs" id="navtabs">
+    <button class="navtab active" data-screen="command" onclick="goScreen('command')">Network Command Center</button>
+    <button class="navtab" data-screen="pool" onclick="goScreen('pool')">Drop Trailer Pool Health</button>
+    <button class="navtab" data-screen="inbound" onclick="goScreen('inbound')">Inbound Equipment Forecast</button>
+    <button class="navtab" data-screen="recovery" onclick="goScreen('recovery')">Recovery Control Queue<span class="count" id="recCount"></span></button>
+    <button class="navtab" data-screen="econ" onclick="goScreen('econ')">Economics &amp; Savings</button>
+  </div>
+
+  <main>
+    <!-- ============ SCREEN 1: COMMAND CENTER ============ -->
+    <section class="screen active" id="screen-command">
+      <div class="screen-head">
+        <div>
+          <h2>Network Command Center</h2>
+          <div class="desc">Live position of every controlled trailer across the Hasbro network — availability, circulation, exposure, and the actions required to protect tomorrow's shipping plan.</div>
+        </div>
+        <div class="head-actions">
+          <span class="mini-label">Network mix (preliminary assumption)</span>
+          <span class="chip chip-gray">≈50% WH→WH · ≈50% WH→Customer · awaiting 6-mo dataset</span>
+        </div>
+      </div>
+
+      <div class="grid kpi-grid" id="kpiRow"></div>
+
+      <div class="section-gap card">
+        <div class="card-pad card-title">Trailer status board <span class="hint">Every trailer carries exactly one primary status · 120 controlled units</span></div>
+        <div style="padding:0 18px 16px"><div class="status-grid" id="statusGrid"></div></div>
+      </div>
+
+      <div class="section-gap grid fac-grid" id="facCards"></div>
+
+      <div class="section-gap card map-wrap">
+        <div class="card-pad card-title">United States network map <span class="hint">Click a facility for inventory, arrivals, projected balance &amp; recommended actions</span></div>
+        <div style="padding:0 10px" id="mapHolder"></div>
+        <div class="map-legend">
+          <span class="lg"><span class="sq"></span>Hasbro warehouse</span>
+          <span class="lg"><span class="ci"></span>Customer location</span>
+          <span class="lg"><span class="di"></span>Recovery / carrier yard</span>
+          <span class="lg"><span class="ln-solid"></span>Loaded movement</span>
+          <span class="lg"><span class="ln-dash"></span>Empty recovery move</span>
+          <span class="lg"><span class="wt"></span>Trailer awaiting recovery</span>
+        </div>
+      </div>
+
+      <div class="section-gap">
+        <details class="ltl">
+          <summary>▸ LTL visibility panel <span class="chip chip-outline">Optional future expansion — not part of the initial trailer-pool pilot</span></summary>
+          <div style="padding:0 18px 16px">
+            <div class="grid kpi-grid" id="ltlRow"></div>
+            <p style="font-size:12px;color:var(--muted);margin-top:10px">LTL shipments are excluded from trailer-pool health and trailer recovery calculations. This panel provides visibility only: in-transit shipments, expected facility arrivals, late/at-risk shipments, carrier performance, claims exceptions, and spend.</p>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <!-- ============ SCREEN 2: POOL HEALTH ============ -->
+    <section class="screen" id="screen-pool">
+      <div class="screen-head">
+        <div>
+          <h2>Drop Trailer Pool Health</h2>
+          <div class="desc">Projected trailer inventory by facility and yard, measured against shipping demand, minimum safety stock, and target inventory.</div>
+        </div>
+        <div class="head-actions">
+          <span class="tip"><button class="info-btn" aria-label="Inventory formula">i</button>
+            <span class="tipbox"><b>Projected available trailer inventory =</b><br>
+            Beginning available trailers<br>+ inbound empty trailers<br>+ loaded trailers expected to become empty<br>+ trailers recovered into the location<br>− trailers required for scheduled outbound loads<br>− trailers scheduled for repositioning<br>− trailers unavailable (maintenance / damage)</span>
+          </span>
+          <span class="mini-label">Forecast horizon</span>
+          <div class="seg" id="horizonSeg"></div>
+        </div>
+      </div>
+      <div class="pool-grid" id="poolGrid"></div>
+      <div class="section-gap card">
+        <div class="card-pad card-title">Approved yard &amp; overflow network <span class="hint">Capacity, hours, security, dwell limits &amp; audit status</span></div>
+        <div class="tbl-wrap"><table id="yardTable"></table></div>
+      </div>
+    </section>
+
+    <!-- ============ SCREEN 3: INBOUND FORECAST ============ -->
+    <section class="screen" id="screen-inbound">
+      <div class="screen-head">
+        <div>
+          <h2>Inbound Equipment Forecast</h2>
+          <div class="desc">Equipment availability — not just shipment ETA. When each trailer is expected to arrive, unload, become empty, and become usable, with confidence and verification source.</div>
+        </div>
+        <div class="head-actions">
+          <span class="chip chip-navy"><span class="cdot"></span>Verified fact</span>
+          <span class="chip chip-outline">System prediction</span>
+          <select class="select" id="inbFacFilter" onchange="renderInbound()"></select>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-pad card-title">Equipment becoming usable — next 72 hours <span class="hint">Solid = high confidence · Mid-tone = medium · Dashed = low / predicted</span></div>
+        <div class="tl-wrap" style="padding:0 16px 14px"><div class="tl-inner" id="timeline"></div></div>
+      </div>
+      <div class="section-gap card">
+        <div class="card-pad card-title">Inbound &amp; pending-availability equipment <span class="hint">Click a row to open the trailer record</span></div>
+        <div class="tbl-wrap" style="max-height:520px"><table id="inbTable"></table></div>
+      </div>
+    </section>
+
+    <!-- ============ SCREEN 4: RECOVERY QUEUE ============ -->
+    <section class="screen" id="screen-recovery">
+      <div class="screen-head">
+        <div>
+          <h2>Recovery Control Queue</h2>
+          <div class="desc">Every trailer requiring recovery — with a named owner, a required action, a deadline, and an escalation path. No exception is left unowned.</div>
+        </div>
+        <div class="head-actions">
+          <select class="select" id="rqFac" onchange="renderQueue()"></select>
+          <select class="select" id="rqEsc" onchange="renderQueue()">
+            <option value="">All escalation levels</option>
+            <option value="1">Level 1 — Recovery plan required</option>
+            <option value="2">Level 2 — Expected dwell exceeded</option>
+            <option value="3">Level 3 — Approaching detention / rental / storage exposure</option>
+            <option value="4">Level 4 — Overdue, threatening facility inventory</option>
+            <option value="5">Level 5 — Location or custody unknown</option>
+          </select>
+          <select class="select" id="rqOwner" onchange="renderQueue()"></select>
+        </div>
+      </div>
+
+      <div class="card card-pad" id="demoScenario"></div>
+
+      <div class="section-gap card">
+        <div class="card-pad card-title">Active recovery queue <span class="hint" id="rqCountHint"></span></div>
+        <div class="tbl-wrap" style="max-height:560px"><table id="rqTable"></table></div>
+      </div>
+    </section>
+
+    <!-- ============ SCREEN 5: ECONOMICS ============ -->
+    <section class="screen" id="screen-econ">
+      <div class="screen-head">
+        <div>
+          <h2>Economics &amp; Savings</h2>
+          <div class="desc">Financial model structure with editable assumptions. Real Hasbro cost data can be inserted later without redesigning the application.</div>
+        </div>
+      </div>
+      <div class="disclosure" style="margin-bottom:16px"><b>Financial results are preliminary.</b> Final savings and ROI require Hasbro's actual trailer rental, storage, yard, detention, recovery, repositioning, and emergency transportation expenses.</div>
+      <div class="subtabs">
+        <button class="subtab active" data-sub="model" onclick="goSub('model')">Financial model</button>
+        <button class="subtab" data-sub="commercial" onclick="goSub('commercial')">Commercial &amp; 90-day pilot</button>
+        <button class="subtab" data-sub="intake" onclick="goSub('intake')">Data intake checklist</button>
+      </div>
+      <div id="sub-model"></div>
+      <div id="sub-commercial" style="display:none"></div>
+      <div id="sub-intake" style="display:none"></div>
+    </section>
+  </main>
+</div>
+
+<!-- drawers / modals -->
+<div class="overlay" id="overlay" onclick="closeAll()"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-head"><div id="drawerHeadContent"></div><button class="x-btn" onclick="closeAll()">✕</button></div>
+  <div class="drawer-body" id="drawerBody"></div>
+</aside>
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <div class="modal-head"><h3 id="modalTitle" style="font-size:15px"></h3><button class="x-btn" onclick="closeAll()">✕</button></div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+/* ============================================================
+   DEMONSTRATION DATA — synthetic, deterministic, clearly labeled
+   ============================================================ */
+let seed = 20260715;
+function rnd(){ seed=(seed*1664525+1013904223)>>>0; return seed/4294967296; }
+function ri(a,b){ return a+Math.floor(rnd()*(b-a+1)); }
+function pick(arr){ return arr[Math.floor(rnd()*arr.length)]; }
+const fmt$ = n => '$'+Math.round(n).toLocaleString('en-US');
+const NOW = new Date('2026-07-15T07:30:00');
+function ts(hoursOffset){ const d=new Date(NOW.getTime()+hoursOffset*3600000);
+  return d.toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});}
+
+const FACILITIES=[
+ {id:'MID',name:'Midway DC',loc:'Midway, GA',lon:-81.43,lat:31.81,target:30,min:22,note:'Newer DC · drop-trailer dependent · limited live-load capability'},
+ {id:'ELW',name:'Elwood DC',loc:'Elwood, IL',lon:-88.11,lat:41.40,target:34,min:26,note:'Primary Midwest node · strongest carrier density'},
+ {id:'CHI',name:'Chino DC',loc:'Chino, CA',lon:-117.69,lat:34.01,target:26,min:20,note:'West Coast import flow · constrained yard footprint'},
+ {id:'ELM',name:'East Longmeadow DC',loc:'East Longmeadow, MA',lon:-72.51,lat:42.06,target:22,min:16,note:'Northeast distribution · seasonal surge exposure'}
+];
+const YARDS=[
+ {id:'Y-ATL',name:'Fairburn Recovery Yard',loc:'Fairburn, GA',type:'Recovery',lon:-84.58,lat:33.57,spaces:40,occ:26,resv:4,hours:'M–F 06:00–22:00, Sat 07:00–15:00',weekend:'Sat only',sec:'Fenced · CCTV · guarded gate',accepts:'53′ dry van',dwell:14,cost:'$142/mo per space',dist:'MID 218 mi',carriers:'Ridgeline Power Only · Marsh Bros',audit:'Jul 11 2026',disc:0},
+ {id:'Y-SAV',name:'Pooler Carrier Yard (Marsh Bros)',loc:'Pooler, GA',type:'Carrier',lon:-81.25,lat:32.11,spaces:25,occ:19,resv:2,hours:'24/7',weekend:'Yes',sec:'Fenced · CCTV',accepts:'53′ dry van · reefer',dwell:10,cost:'$0 (interchange)',dist:'MID 24 mi',carriers:'Marsh Bros Transport',audit:'Jul 13 2026',disc:1},
+ {id:'Y-JOL',name:'Joliet Overflow Yard',loc:'Joliet, IL',type:'Overflow',lon:-88.08,lat:41.53,spaces:60,occ:31,resv:6,hours:'24/7',weekend:'Yes',sec:'Fenced · CCTV · patrol',accepts:'53′ dry van',dwell:30,cost:'$118/mo per space',dist:'ELW 9 mi',carriers:'Ridgeline · Great Lakes Cartage',audit:'Jul 8 2026',disc:2},
+ {id:'Y-ONT',name:'Ontario Recovery Yard',loc:'Ontario, CA',type:'Recovery',lon:-117.60,lat:34.06,spaces:35,occ:33,resv:2,hours:'M–Sa 05:00–23:00',weekend:'Sat only',sec:'Fenced · CCTV · guarded gate',accepts:'53′ dry van',dwell:14,cost:'$210/mo per space',dist:'CHI 7 mi',carriers:'Pacific Drayage Co',audit:'Jul 12 2026',disc:0},
+ {id:'Y-CLT',name:'Charlotte Recovery Yard',loc:'Charlotte, NC',type:'Recovery',lon:-80.90,lat:35.22,spaces:20,occ:9,resv:1,hours:'M–F 07:00–19:00',weekend:'No',sec:'Fenced',accepts:'53′ dry van',dwell:14,cost:'$120/mo per space',dist:'MID 262 mi · ELM 812 mi',carriers:'Ridgeline Power Only',audit:'Jun 30 2026',disc:3},
+ {id:'Y-DAL',name:'Lancaster Overflow Yard',loc:'Lancaster, TX',type:'Overflow',lon:-96.76,lat:32.59,spaces:45,occ:12,resv:0,hours:'24/7',weekend:'Yes',sec:'Fenced · CCTV',accepts:'53′ dry van · flatbed',dwell:30,cost:'$96/mo per space',dist:'MID 918 mi',carriers:'Lone Star Power Units',audit:'Jul 5 2026',disc:0},
+ {id:'Y-HAR',name:'Carlisle Carrier Yard (Keystone)',loc:'Carlisle, PA',type:'Carrier',lon:-77.19,lat:40.20,spaces:30,occ:17,resv:3,hours:'24/7',weekend:'Yes',sec:'Fenced · CCTV · guarded gate',accepts:'53′ dry van',dwell:10,cost:'$0 (interchange)',dist:'ELM 302 mi',carriers:'Keystone Freight Lines',audit:'Jul 10 2026',disc:1},
+ {id:'Y-SPR',name:'Chicopee Recovery Yard',loc:'Chicopee, MA',type:'Recovery',lon:-72.57,lat:42.17,spaces:18,occ:8,resv:2,hours:'M–Sa 06:00–20:00',weekend:'Sat only',sec:'Fenced · CCTV',accepts:'53′ dry van',dwell:14,cost:'$155/mo per space',dist:'ELM 8 mi',carriers:'Bay State Power Only',audit:'Jul 14 2026',disc:0}
+];
+const CUSTOMERS=[
+ {id:'C01',name:'Walmart DC 6027',loc:'Statesboro, GA',lon:-81.78,lat:32.44,dwell:19},
+ {id:'C02',name:'Target T-3808 RDC',loc:'Newton, GA',lon:-84.34,lat:31.31,dwell:26},
+ {id:'C03',name:'Amazon FC MGE1',loc:'McDonough, GA',lon:-84.15,lat:33.45,dwell:31},
+ {id:'C04',name:'Dollar General DC',loc:'Bessemer, AL',lon:-86.95,lat:33.40,dwell:38},
+ {id:'C05',name:'Kohl\'s EFC #4',loc:'Monroe, OH',lon:-84.36,lat:39.44,dwell:22},
+ {id:'C06',name:'Walmart DC 6094',loc:'Sterling, IL',lon:-89.70,lat:41.79,dwell:17},
+ {id:'C07',name:'Target T-0553 RDC',loc:'Oconomowoc, WI',lon:-88.50,lat:43.11,dwell:24},
+ {id:'C08',name:'Meijer DC 89',loc:'Lansing, MI',lon:-84.56,lat:42.73,dwell:28},
+ {id:'C09',name:'Amazon FC MDW2',loc:'Joliet, IL',lon:-88.13,lat:41.51,dwell:20},
+ {id:'C10',name:'Costco Depot 654',loc:'Morris, IL',lon:-88.42,lat:41.36,dwell:15},
+ {id:'C11',name:'Walmart DC 7026',loc:'Buckeye, AZ',lon:-112.58,lat:33.37,dwell:34},
+ {id:'C12',name:'Target T-3862 RDC',loc:'Rialto, CA',lon:-117.37,lat:34.11,dwell:21},
+ {id:'C13',name:'Amazon FC ONT8',loc:'Moreno Valley, CA',lon:-117.22,lat:33.92,dwell:29},
+ {id:'C14',name:'Ross Stores DC',loc:'Perris, CA',lon:-117.23,lat:33.79,dwell:41},
+ {id:'C15',name:'Five Below DC',loc:'Buckeye, AZ',lon:-112.52,lat:33.42,dwell:33},
+ {id:'C16',name:'Walmart DC 6080',loc:'Raymond, NH',lon:-71.18,lat:43.03,dwell:18},
+ {id:'C17',name:'Target T-3804 RDC',loc:'Wilton, NY',lon:-73.72,lat:43.15,dwell:25},
+ {id:'C18',name:'Amazon FC ABE8',loc:'Florence, NJ',lon:-74.80,lat:40.10,dwell:27},
+ {id:'C19',name:'BJ\'s Wholesale DC',loc:'Uxbridge, MA',lon:-71.63,lat:42.05,dwell:23},
+ {id:'C20',name:'TJX HomeGoods DC',loc:'Bloomfield, CT',lon:-72.73,lat:41.85,dwell:36}
+];
+const CARRIERS=['Marsh Bros Transport','Ridgeline Power Only','Great Lakes Cartage','Pacific Drayage Co','Keystone Freight Lines','Bay State Power Only','Lone Star Power Units','Blue Compass Logistics','Ironway Carriers','Summit Line Haul','Cardinal Freight','Northgate Transport','Tri-State Vanlines','Harbor Point Trucking','Redwood Express','Prairie Wind Freight','Coastal Carriers Inc','Mercer Valley Lines','Old Dominion Vans','Anchor Freightways','Silverline Haulage','Patriot Road Freight','Evergreen Motor Lines','Crossdock Express','Highline Transport Grp','Beacon Freight Sys','Frontier Vanlines','Stonebridge Carriers','Lakeshore Logistics','Vantage Point Trucking'];
+const OWNERS=['Hasbro leased','BHD managed pool','Carrier interchange'];
+const BHD_OPS=['A. Goad','G. Harris','J. McCarthy','A. Helmecy','D. Mollo'];
+
+const STATUSES=[
+ ['EMPTY_AVAIL','Empty & available',16],
+ ['EMPTY_RES','Empty & reserved',8],
+ ['ASSIGNED','Assigned to load',6],
+ ['LOADING','Loading',5],
+ ['LOADED_WAIT','Loaded, awaiting pickup',8],
+ ['TRANSIT','In transit loaded',18],
+ ['DELIV_WAIT','Delivered, awaiting unload',10],
+ ['EMPTY_CUST','Empty at customer',12],
+ ['REC_REQ','Recovery requested',6],
+ ['REC_ASSIGN','Recovery assigned',7],
+ ['RETURNING','Returning empty',6],
+ ['AT_YARD','At approved recovery yard',8],
+ ['MAINT','Maintenance hold',3],
+ ['DAMAGE','Damage hold',2],
+ ['OVERDUE','Overdue',3],
+ ['UNKNOWN','Location unknown',2]
+];
+const STATUS_LABEL=Object.fromEntries(STATUSES.map(s=>[s[0],s[1]]));
+
+/* ---- trailer generation (120) ---- */
+const TRAILERS=[];
+(function(){
+  let n=53101, li=40217;
+  STATUSES.forEach(([code,label,count])=>{
+    for(let i=0;i<count;i++){
+      const t={};
+      t.num='HZT'+(n++); t.owner=pick(OWNERS); t.type="53′ dry van, swing door";
+      t.year=ri(2016,2024); t.status=code;
+      t.gps = code==='UNKNOWN' ? 'No signal' : (rnd()<0.78?'Active':'Stale >12h');
+      t.interchange = t.owner==='Carrier interchange' ? 'Restricted — owner rules apply' : 'Permitted (approved carriers)';
+      t.damage = code==='DAMAGE' ? 'Right rear door hinge — repair scheduled' : 'None reported';
+      t.maint = code==='MAINT' ? pick(['Annual FHWA inspection due','Brake reline in progress','Landing gear repair']) : 'Current';
+      t.loadId = ['TRANSIT','LOADED_WAIT','DELIV_WAIT','LOADING','ASSIGNED'].includes(code) ? 'BHD-'+(li++) : '—';
+      t.carrier = code==='EMPTY_AVAIL'||code==='AT_YARD'||code==='MAINT'||code==='DAMAGE' ? '—' : pick(CARRIERS);
+      const fac=pick(FACILITIES), cust=pick(CUSTOMERS), yard=pick(YARDS);
+      switch(code){
+        case 'EMPTY_AVAIL': case 'EMPTY_RES': case 'ASSIGNED': case 'LOADING': case 'LOADED_WAIT': case 'MAINT': case 'DAMAGE':
+          t.location=fac.name+' — '+fac.loc; t.custody='Hasbro facility'; t.locRef={k:'F',id:fac.id}; break;
+        case 'TRANSIT':
+          t.location='En route · '+pick(['I-75 S','I-80 W','I-40 E','I-10 W','I-90 E','I-95 N'])+' corridor'; t.custody=t.carrier; t.locRef={k:'T'}; break;
+        case 'DELIV_WAIT': case 'EMPTY_CUST': case 'REC_REQ':
+          t.location=cust.name+' — '+cust.loc; t.custody=cust.name; t.locRef={k:'C',id:cust.id}; break;
+        case 'REC_ASSIGN': case 'RETURNING':
+          t.location=cust.name+' — '+cust.loc; t.custody=t.carrier; t.locRef={k:'C',id:cust.id}; break;
+        case 'AT_YARD':
+          t.location=yard.name+' — '+yard.loc; t.custody='Yard partner'; t.locRef={k:'Y',id:yard.id}; break;
+        case 'OVERDUE':
+          t.location=cust.name+' — '+cust.loc+' (last known)'; t.custody='Unconfirmed — '+t.carrier; t.locRef={k:'C',id:cust.id}; break;
+        case 'UNKNOWN':
+          t.location='Last ping: '+pick(['I-24 nr Chattanooga, TN','US-301 nr Jesup, GA'])+' · '+ri(2,5)+' days ago'; t.custody='Unknown'; t.locRef={k:'U'}; break;
+      }
+      t.lastVerifiedH = code==='UNKNOWN'?ri(52,120): code==='OVERDUE'?ri(20,40): ri(1,14);
+      t.source = code==='UNKNOWN'?'Stale / unknown': pick(['GPS verified','Gate verified','Carrier confirmed','Customer confirmed','Physical yard audit','System predicted']);
+      t.loaded = ['LOADING','LOADED_WAIT','TRANSIT','DELIV_WAIT','ASSIGNED'].includes(code)?'Loaded':'Empty';
+      t.assignment = t.loadId!=='—' ? 'Load '+t.loadId : (code==='EMPTY_RES'?'Reserved — outbound plan '+ts(ri(10,40)):'Unassigned');
+      t.nextAssign = rnd()<0.4 ? 'Planned: outbound ex '+pick(FACILITIES).name+' '+ts(ri(24,96)) : 'None scheduled';
+      t.returnLoc = pick(FACILITIES).name;
+      t.idleH = ['EMPTY_CUST','REC_REQ','OVERDUE','UNKNOWN','AT_YARD','EMPTY_AVAIL'].includes(code)? ri(6,140):ri(0,10);
+      t.exposure = code==='OVERDUE'?ri(900,1600): code==='UNKNOWN'?ri(1200,2400): code==='EMPTY_CUST'?ri(150,700): code==='REC_REQ'?ri(200,600): ri(0,180);
+      t.events=[
+        {h:-t.lastVerifiedH, e:'Position verified — '+t.source, src:t.source},
+        {h:-ri(18,40), e:'Gate out — '+pick(FACILITIES).name, src:'Gate verified'},
+        {h:-ri(41,90), e:'Assigned to load '+('BHD-'+ri(40100,40216)), src:'System'},
+        {h:-ri(91,160), e:'Physical yard audit — matched', src:'Physical yard audit'}
+      ];
+      t.comms=[
+        {h:-ri(2,30), e:pick(['Carrier dispatch confirmed ETA','Customer receiving confirmed unload window','Voicemail left with carrier dispatch','Yard partner confirmed space held','LJ automated check call completed — carrier confirmed position'])},
+        {h:-ri(31,80), e:pick(['Email sent: recovery instructions & interchange terms','Text confirmation from driver','Customer traffic office requested reschedule'])}
+      ];
+      TRAILERS.push(t);
+    }
+  });
+})();
+
+/* ---- pool health matrices (curated demonstration story) ---- */
+const HORIZONS=['Now','24 h','48 h','72 h','7 d','14 d'];
+const POOL={
+ MID:{ beg:[9,9,11,14,16,18], inbE:[2,3,4,5,9,14], becE:[3,4,6,7,12,18], rec:[1,3,4,5,8,12], req:[14,20,22,24,38,52], repo:[2,3,4,4,6,8], unav:[1,2,2,2,3,4], surplus:[-2,-6,-3,1,-2,-2] },
+ ELW:{ beg:[21,21,22,23,24,25], inbE:[4,6,8,9,14,20], becE:[5,7,9,11,16,24], rec:[2,3,4,5,7,10], req:[18,22,26,30,44,62], repo:[3,4,5,5,7,10], unav:[2,2,2,2,3,3], surplus:[9,9,10,11,7,4] },
+ CHI:{ beg:[12,12,12,13,14,15], inbE:[2,3,4,4,7,11], becE:[3,4,5,6,10,15], rec:[1,1,2,2,4,6], req:[13,16,19,23,32,44], repo:[2,2,3,3,4,6], unav:[1,1,1,1,2,2], surplus:[2,1,0,-2,-3,-5] },
+ ELM:{ beg:[13,13,14,14,15,16], inbE:[2,3,4,5,8,12], becE:[3,4,5,6,9,14], rec:[1,2,2,3,5,7], req:[11,14,17,20,29,40], repo:[2,2,3,3,4,5], unav:[1,1,1,1,2,2], surplus:[5,5,4,4,2,2] }
+};
+function classify(fac,hIdx){
+  const s=POOL[fac.id].surplus[hIdx];
+  const proj = fac.min + s; // projected ending inventory relative frame
+  if(s < 0) return s<=-4 ? ['Critical','red','Shipping interruption is projected'] : ['At Risk','orange','Projected inventory below minimum'];
+  const target=fac.target-fac.min;
+  return s>=target*0.4 ? ['Healthy','green','Projected inventory above target'] : ['Watch','amber','Between minimum and target'];
+}
+function healthScore(fac,hIdx){ const s=POOL[fac.id].surplus[hIdx]; return Math.max(4,Math.min(98, 62 + s*6)); }
+
+/* ---- inbound forecast rows ---- */
+const CONF=['High','Medium','Low'];
+const INBOUND=[];
+(function(){
+  const pool=TRAILERS.filter(t=>['TRANSIT','DELIV_WAIT','EMPTY_CUST','REC_ASSIGN','RETURNING'].includes(t.status));
+  pool.forEach(t=>{
+    const dest = pick(FACILITIES);
+    const cust = pick(CUSTOMERS);
+    const r={};
+    r.t=t; r.destFac=dest.id;
+    r.origin = t.status==='TRANSIT'? pick(FACILITIES).name : (t.locRef.k==='C'? (CUSTOMERS.find(c=>c.id===t.locRef.id)||cust).name : t.location.split(' — ')[0]);
+    r.destination = t.status==='TRANSIT' ? (rnd()<0.5 ? dest.name : cust.name) : dest.name;
+    r.schedDel = ts(ri(-6,30)); 
+    const estH = t.status==='TRANSIT'? ri(4,46) : t.status==='DELIV_WAIT'? ri(1,10) : 0;
+    r.estDel = t.status==='TRANSIT'||t.status==='DELIV_WAIT' ? ts(estH) : 'Delivered '+ts(-t.idleH);
+    const unloadH = estH + (t.status==='EMPTY_CUST'||t.status==='RETURNING'||t.status==='REC_ASSIGN' ? 0 : ri(3,26));
+    r.unloadDone = t.loaded==='Empty' ? 'Complete' : ts(unloadH);
+    r.emptyH = t.loaded==='Empty' ? 0 : unloadH;
+    r.usableH = r.emptyH + (t.status==='RETURNING'? ri(2,10) : ri(4,30));
+    if(r.usableH>72*2) r.usableH=ri(40,140);
+    r.usable = ts(r.usableH);
+    r.recLoc = pick(['Return to '+dest.name, YARDS[0].name, YARDS[1].name, 'Nearest facility w/ demand — '+dest.name, YARDS[3].name]);
+    r.conf = t.source==='System predicted' ? pick(['Low','Medium']) : (t.status==='TRANSIT'&&t.gps==='Active'?'High':pick(CONF));
+    if(t.status==='OVERDUE'||t.status==='UNKNOWN') r.conf='Unknown';
+    r.exception = t.status==='OVERDUE'?'Overdue recovery': (t.idleH>60?'Excess customer dwell': (t.gps!=='Active'?'Stale tracking':'—'));
+    INBOUND.push(r);
+  });
+  INBOUND.sort((a,b)=>a.usableH-b.usableH);
+})();
+
+/* ---- recovery queue ---- */
+const QUEUE=[];
+(function(){
+  const pool=TRAILERS.filter(t=>['EMPTY_CUST','REC_REQ','REC_ASSIGN','OVERDUE','UNKNOWN'].includes(t.status));
+  pool.forEach((t,i)=>{
+    const q={t};
+    q.esc = t.status==='UNKNOWN'?5 : t.status==='OVERDUE'?4 : t.idleH>90?3 : t.status==='EMPTY_CUST'&&t.idleH>40?2 : t.status==='REC_REQ'?2:1;
+    if(t.status==='REC_ASSIGN') q.esc=Math.min(q.esc,2);
+    q.priority = q.esc>=4?'P1': q.esc===3?'P2':'P3';
+    q.deliveredAt = ts(-t.idleH - ri(4,20));
+    q.unloadedAt = t.loaded==='Empty' ? ts(-t.idleH) : 'Not yet reported';
+    q.freeTime = Math.max(0, 48 - t.idleH);
+    q.dest = pick(['Midway DC','Fairburn Recovery Yard','Elwood DC','Joliet Overflow Yard','Ontario Recovery Yard','East Longmeadow DC','Chicopee Recovery Yard']);
+    q.dist = ri(8,240)+' mi';
+    q.yardCap = pick(['14 open','9 open','2 open — tight','6 open','21 open']);
+    q.recCarrier = t.status==='REC_ASSIGN'||t.status==='RETURNING' ? t.carrier : (rnd()<0.5?'Unassigned':pick(['Ridgeline Power Only','Bay State Power Only','Pacific Drayage Co','Lone Star Power Units']));
+    q.appt = t.status==='REC_ASSIGN' ? ts(ri(3,30)) : 'Not scheduled';
+    q.cost = fmt$(ri(180,520));
+    q.owner = BHD_OPS[i % BHD_OPS.length];
+    q.lastComm = ts(-ri(1,26))+' · '+pick(['carrier dispatch call','customer traffic email','LJ automated check call','yard partner text']);
+    q.nextAction = t.status==='UNKNOWN'?'Locate trailer — carrier escalation + last-ping canvass':
+                   t.status==='OVERDUE'?'Assign backup power-only carrier':
+                   t.status==='REC_ASSIGN'?'Confirm recovery appointment with yard':
+                   q.esc>=3?'Book power-only recovery today':'Create recovery plan & confirm empty time';
+    q.deadline = ts(q.esc>=4?ri(2,8):q.esc===3?ri(6,18):ri(12,42));
+    q.impact = q.esc>=4?'Threatens '+pick(['Midway','Elwood','Chino'])+' loading plan':
+               q.esc===3?'Detention / storage exposure accruing': 'Pool circulation delay';
+    QUEUE.push(q);
+  });
+  QUEUE.sort((a,b)=>b.esc-a.esc || b.t.exposure-a.t.exposure);
+})();
+
+/* ============================================================
+   ROLES & LOGIN
+   ============================================================ */
+const ROLES=[
+ {id:'exec',org:'Hasbro',name:'Executive',tabs:['command','pool','inbound','recovery','econ'],home:'command'},
+ {id:'tm',org:'Hasbro',name:'Transportation Manager',tabs:['command','pool','inbound','recovery','econ'],home:'command'},
+ {id:'fm',org:'Hasbro',name:'Facility Manager — Midway',tabs:['pool','inbound','recovery'],home:'pool'},
+ {id:'op',org:'Backhaul Direct',name:'Control Tower Operator',tabs:['command','pool','inbound','recovery'],home:'recovery'},
+ {id:'admin',org:'Backhaul Direct',name:'Administrator',tabs:['command','pool','inbound','recovery','econ'],home:'command'},
+ {id:'partner',org:'Partner',name:'Carrier / Recovery-Yard Partner',tabs:['recovery'],home:'recovery'}
+];
+let currentRole=ROLES[0], selRoleId='exec';
+const roleGrid=document.getElementById('roleGrid');
+roleGrid.innerHTML=ROLES.map(r=>`<button class="role-opt ${r.id==='exec'?'sel':''}" data-r="${r.id}" onclick="selRole('${r.id}')"><span class="r-org">${r.org}</span>${r.name}</button>`).join('');
+function selRole(id){selRoleId=id;document.querySelectorAll('.role-opt').forEach(b=>b.classList.toggle('sel',b.dataset.r===id));}
+function doLogin(){
+  currentRole=ROLES.find(r=>r.id===selRoleId);
+  document.getElementById('loginView').style.display='none';
+  document.getElementById('appView').style.display='flex';
+  document.getElementById('rolePill').innerHTML=`${currentRole.org} · <b>${currentRole.name}</b>`;
+  document.querySelectorAll('.navtab').forEach(t=>{ t.style.display = currentRole.tabs.includes(t.dataset.screen)?'':'none'; });
+  goScreen(currentRole.home);
+  if(currentRole.id==='partner') toast('Partner view: showing only trailers and recovery work assigned to your organization.');
+}
+function logout(){document.getElementById('appView').style.display='none';document.getElementById('loginView').style.display='flex';}
+function goScreen(id){
+  document.querySelectorAll('.navtab').forEach(t=>t.classList.toggle('active',t.dataset.screen===id));
+  document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id==='screen-'+id));
+  window.scrollTo(0,0);
+}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),3200);}
+function closeAll(){document.getElementById('overlay').classList.remove('open');document.getElementById('drawer').classList.remove('open');document.getElementById('modal').classList.remove('open');}
+function openDrawer(headHTML,bodyHTML){document.getElementById('drawerHeadContent').innerHTML=headHTML;document.getElementById('drawerBody').innerHTML=bodyHTML;document.getElementById('overlay').classList.add('open');document.getElementById('drawer').classList.add('open');}
+function openModal(title,bodyHTML){document.getElementById('modalTitle').textContent=title;document.getElementById('modalBody').innerHTML=bodyHTML;document.getElementById('overlay').classList.add('open');document.getElementById('modal').classList.add('open');}
+
+/* ============================================================
+   SCREEN 1 — COMMAND CENTER
+   ============================================================ */
+const count = code => TRAILERS.filter(t=>t.status===code).length;
+(function renderKPIs(){
+  const totalExposure = TRAILERS.reduce((s,t)=>s+t.exposure,0);
+  const netSurplus = FACILITIES.reduce((s,f)=>s+POOL[f.id].surplus[1],0);
+  const kpis=[
+   {l:'Total controlled trailers',v:TRAILERS.length,s:'Across 4 DCs, customers & yards'},
+   {l:'Empty & available now',v:count('EMPTY_AVAIL'),s:count('EMPTY_RES')+' more reserved',c:'k-good'},
+   {l:'Expected available · 24 h',v:14,s:'22 within 48 h · 31 within 72 h'},
+   {l:'Projected net position · 24 h',v:(netSurplus>0?'+':'')+netSurplus,s:'Midway drives the shortfall',c:netSurplus<0?'k-alert':'k-good'},
+   {l:'High-priority exceptions',v:QUEUE.filter(q=>q.esc>=4).length,s:QUEUE.length+' total in recovery queue',c:'k-alert'},
+   {l:'Est. cost currently at risk',v:fmt$(totalExposure),s:'Detention · storage · rental exposure',c:'k-warn'}
+  ];
+  document.getElementById('kpiRow').innerHTML=kpis.map(k=>`<div class="card kpi ${k.c||''}"><div class="k-label">${k.l}</div><div class="k-value">${k.v}</div><div class="k-sub">${k.s}</div></div>`).join('');
+})();
+(function renderStatusGrid(){
+  document.getElementById('statusGrid').innerHTML = STATUSES.map(([code,label])=>{
+    const c=count(code);
+    const cls = code==='OVERDUE'||code==='UNKNOWN' ? 'bad' : (code==='EMPTY_CUST'||code==='REC_REQ')?'warn':'';
+    return `<div class="st-cell ${cls}"><div class="sv">${c}</div><div class="sl">${label}</div></div>`;
+  }).join('');
+})();
+function facCardHTML(f){
+  const [cls,color,expl]=classify(f,1);
+  const p=POOL[f.id];
+  const chip={green:'chip-green',amber:'chip-amber',orange:'chip-orange',red:'chip-red'}[color];
+  const icon={green:'✓',amber:'◐',orange:'▲',red:'✕'}[color];
+  const barW=healthScore(f,1);
+  const barC={green:'var(--green)',amber:'#C89B12',orange:'var(--orange)',red:'var(--red)'}[color];
+  return `<div class="card fac-card" onclick="openFacility('${f.id}')">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+      <div><h4>${f.name}</h4><div class="fac-loc">${f.loc}</div></div>
+      <span class="chip ${chip}">${icon} ${cls}</span>
+    </div>
+    <div class="fac-stats">
+      <div class="fac-stat"><div class="v">${p.beg[0]}</div><div class="l">Avail now</div></div>
+      <div class="fac-stat"><div class="v">${p.inbE[1]+p.becE[1]}</div><div class="l">Inbound 24h</div></div>
+      <div class="fac-stat"><div class="v ${p.surplus[1]<0?'neg':'pos'}">${p.surplus[1]>0?'+':''}${p.surplus[1]}</div><div class="l">24h position</div></div>
+    </div>
+    <div class="fac-bar"><div style="width:${barW}%;background:${barC}"></div></div>
+    <div class="fac-foot"><span>Pool health ${barW}/100</span><span>Target ${f.target} · Min ${f.min}</span></div>
+  </div>`;
+}
+document.getElementById('facCards').innerHTML=FACILITIES.map(facCardHTML).join('');
+
+function openFacility(id){
+  const f=FACILITIES.find(x=>x.id===id), p=POOL[id];
+  const [cls,color]=classify(f,1);
+  const chip={green:'chip-green',amber:'chip-amber',orange:'chip-orange',red:'chip-red'}[color];
+  const recs = id==='MID' ? [
+    'Recover 3 Atlanta-area empties (HZT53228, HZT53231, HZT53236) to Midway — Ridgeline Power Only, appt window Jul 15 14:00–20:00.',
+    'Confirm 2 inbound loaded trailers from Elwood (ETA tonight) unload first thing Jul 16.',
+    'Assign backup power-only carrier to the overdue Charlotte recovery (HZT53289).',
+    'Hold 2 Pooler yard trailers for Jul 17 outbound rather than repositioning north.']
+    : id==='CHI' ? ['Pre-stage 2 Ontario yard trailers ahead of the 72-h dip.','Push Rialto & Moreno Valley customers on unload commitments — dwell trending above plan.']
+    : ['Release '+Math.max(2,p.surplus[1]-4)+' surplus units for network repositioning to Midway.','Maintain safety stock; no action required today.'];
+  openDrawer(
+    `<h3>${f.name} · ${f.loc}</h3><div class="sub">${f.note}</div>`,
+    `<span class="chip ${chip}" style="margin-bottom:14px">Pool status: ${cls} · 24 h horizon</span>
+     <div class="subhead">Current inventory & flow (next 24 h)</div>
+     <dl class="kv">
+       <dt>Empty trailers available now</dt><dd class="num">${p.beg[0]}</dd>
+       <dt>Expected arrivals (loaded)</dt><dd class="num">${p.becE[1]}</dd>
+       <dt>Expected to become empty</dt><dd class="num">${p.becE[1]}</dd>
+       <dt>Inbound empty / recoveries</dt><dd class="num">${p.inbE[1]+p.rec[1]}</dd>
+       <dt>Scheduled outbound requirement</dt><dd class="num">${p.req[1]}</dd>
+       <dt>Scheduled repositioning out</dt><dd class="num">${p.repo[1]}</dd>
+       <dt>Maintenance / damage holds</dt><dd class="num">${p.unav[1]}</dd>
+       <dt><b>Projected ending balance</b></dt><dd class="num ${p.surplus[1]<0?'neg':'pos'}"><b>${p.surplus[1]>0?'+':''}${p.surplus[1]} vs. minimum</b></dd>
+       <dt>Safety-stock position</dt><dd class="num">Min ${f.min} · Target ${f.target}</dd>
+     </dl>
+     <div class="subhead">Active exceptions</div>
+     ${QUEUE.filter(q=>q.impact.includes(f.name.split(' ')[0])).slice(0,3).map(q=>`<div class="event"><span class="e-time mono">${q.deadline}</span><span>${q.t.num} — ${q.nextAction}</span><span class="e-src chip chip-${q.esc>=4?'red':q.esc===3?'orange':'amber'}">L${q.esc}</span></div>`).join('')||'<div style="font-size:12.5px;color:var(--muted)">No open exceptions tied to this facility.</div>'}
+     <div class="subhead">Recommended actions</div>
+     <ol style="font-size:12.8px;line-height:1.7;margin-left:18px">${recs.map(r=>`<li>${r}</li>`).join('')}</ol>
+     <div style="margin-top:18px;display:flex;gap:8px">
+       <button class="btn btn-navy" onclick="toast('Recommendations pushed to Recovery Control Queue with named owners.')">Push actions to queue</button>
+       <button class="btn" onclick="goScreen('pool');closeAll()">Open pool health</button>
+     </div>`);
+}
+
+/* ---- map ---- */
+(function renderMap(){
+  const W=1000,H=612;
+  const px=lon=>(lon+126)*(W/61), py=lat=>(50.6-lat)*(H/26.6);
+  const US=[[-124.7,48.4],[-95.15,49.0],[-94.6,48.7],[-89.5,48.0],[-84.8,46.9],[-82.5,45.3],[-82.7,41.7],[-79.0,42.9],[-76.2,43.6],[-74.7,45.0],[-71.5,45.0],[-69.2,47.4],[-66.9,44.8],[-70.8,42.7],[-70.0,41.6],[-74.0,40.5],[-75.5,38.2],[-76.0,36.9],[-75.7,35.2],[-78.9,33.8],[-81.0,31.9],[-80.0,26.8],[-80.4,25.2],[-81.8,26.0],[-82.7,28.0],[-84.0,30.1],[-85.4,29.7],[-89.2,29.2],[-90.1,29.1],[-93.8,29.7],[-97.1,26.0],[-99.1,26.4],[-101.4,29.8],[-103.1,28.9],[-104.9,30.6],[-106.5,31.8],[-111.1,31.3],[-114.8,32.5],[-117.1,32.5],[-118.4,33.7],[-120.6,34.6],[-121.9,36.6],[-123.7,38.9],[-124.2,40.4]];
+  const path='M'+US.map(p=>px(p[0]).toFixed(1)+','+py(p[1]).toFixed(1)).join(' L ')+' Z';
+  const P=(a)=>[px(a.lon),py(a.lat)];
+  let s=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" role="img" aria-label="Hasbro trailer network map">`;
+  s+=`<path d="${path}" fill="#EDF1F6" stroke="#CBD6E1" stroke-width="1.2"/>`;
+  // movement lines
+  const line=(a,b,dash,color,w)=>{const [x1,y1]=P(a),[x2,y2]=P(b);const mx=(x1+x2)/2,my=(y1+y2)/2-40;
+    return `<path d="M${x1},${y1} Q${mx},${my} ${x2},${y2}" fill="none" stroke="${color}" stroke-width="${w}" ${dash?'stroke-dasharray="6 5"':''} opacity=".85" marker-end="url(#arr${dash?'g':'n'})"/>`;};
+  s+=`<defs><marker id="arrn" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1F4877"/></marker><marker id="arrg" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#7E9A14"/></marker></defs>`;
+  const F=Object.fromEntries(FACILITIES.map(f=>[f.id,f]));
+  s+=line(F.ELW,F.MID,false,'#1F4877',2.2);            // loaded WH->WH
+  s+=line(F.CHI,CUSTOMERS[13],false,'#1F4877',2.2);    // loaded WH->cust
+  s+=line(F.ELM,CUSTOMERS[17],false,'#1F4877',2.2);
+  s+=line(F.MID,CUSTOMERS[2],false,'#1F4877',2.2);
+  s+=line(CUSTOMERS[2],F.MID,true,'#7E9A14',2.2);      // recovery ATL->MID
+  s+=line(YARDS[3],F.CHI,true,'#7E9A14',2.2);
+  s+=line(CUSTOMERS[19],YARDS[8-1],true,'#7E9A14',2.2);
+  // customers
+  CUSTOMERS.forEach(c=>{const [x,y]=P(c);s+=`<circle cx="${x}" cy="${y}" r="4.5" fill="#8CA0B3" stroke="#fff" stroke-width="1.2"><title>${c.name} — ${c.loc}</title></circle>`;});
+  // waiting-recovery markers (orange ring on a few customers)
+  [2,3,13,19].forEach(i=>{const [x,y]=P(CUSTOMERS[i]);s+=`<circle cx="${x}" cy="${y}" r="9" fill="none" stroke="var(--orange)" stroke-width="2"><title>Trailers awaiting recovery — ${CUSTOMERS[i].name}</title></circle>`;});
+  // yards
+  YARDS.forEach(y=>{const [x,yy]=P(y);s+=`<rect x="${x-5.5}" y="${yy-5.5}" width="11" height="11" transform="rotate(45 ${x} ${yy})" fill="#7E9A14" stroke="#fff" stroke-width="1.3"><title>${y.name} — ${y.loc} (${y.spaces-y.occ} spaces open)</title></rect>`;});
+  // warehouses
+  FACILITIES.forEach(f=>{const [x,y]=P(f);
+    s+=`<g class="mapnode" onclick="openFacility('${f.id}')"><rect x="${x-8}" y="${y-8}" width="16" height="16" rx="3" fill="#0E2A47" stroke="#fff" stroke-width="1.6"/><text x="${x+13}" y="${y+4}" font-size="12.5" font-weight="600" fill="#17242F">${f.name.replace(' DC','')}</text><title>${f.name} — ${f.loc}</title></g>`;});
+  s+='</svg>';
+  document.getElementById('mapHolder').innerHTML=s;
+})();
+
+/* ---- LTL panel ---- */
+document.getElementById('ltlRow').innerHTML=[
+ {l:'LTL shipments in transit',v:42},{l:'Expected facility arrivals · 48 h',v:17},
+ {l:'Late / at-risk',v:5,c:'k-warn'},{l:'Carrier on-time (30 d)',v:'93.1%'},
+ {l:'Claims / damage exceptions',v:2},{l:'MTD LTL spend · shipments',v:'$84.2K · 118'}
+].map(k=>`<div class="card kpi ${k.c||''}"><div class="k-label">${k.l}</div><div class="k-value">${k.v}</div></div>`).join('');
+
+/* ============================================================
+   SCREEN 2 — POOL HEALTH
+   ============================================================ */
+let horizon=1;
+document.getElementById('horizonSeg').innerHTML=HORIZONS.map((h,i)=>`<button class="${i===1?'on':''}" onclick="setHorizon(${i},this)">${h}</button>`).join('');
+function setHorizon(i,btn){horizon=i;document.querySelectorAll('#horizonSeg button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderPool();}
+function renderPool(){
+  document.getElementById('poolGrid').innerHTML=FACILITIES.map(f=>{
+    const p=POOL[f.id],h=horizon;
+    const [cls,color,expl]=classify(f,h);
+    const chip={green:'chip-green',amber:'chip-amber',orange:'chip-orange',red:'chip-red'}[color];
+    const icon={green:'✓',amber:'◐',orange:'▲',red:'✕'}[color];
+    const score=healthScore(f,h);
+    const barC={green:'var(--green)',amber:'#C89B12',orange:'var(--orange)',red:'var(--red)'}[color];
+    const proj=p.beg[h]+p.inbE[h]+p.becE[h]+p.rec[h]-p.repo[h]-p.unav[h];
+    return `<div class="card pool-card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+        <div><h4 style="font-size:14.5px">${f.name}</h4><div style="font-size:12px;color:var(--muted)">${f.loc} · horizon: ${HORIZONS[h]}</div></div>
+        <span class="chip ${chip}">${icon} ${cls}</span>
+      </div>
+      <div style="font-size:11.5px;color:var(--muted);margin-top:3px">${expl}</div>
+      <div class="pool-rows">
+        <span class="pr-l">Empty available now</span><span class="pr-v">${p.beg[h]}</span>
+        <span class="pr-l">Empty reserved</span><span class="pr-v">${Math.round(p.beg[h]*0.3)}</span>
+        <span class="pr-l">Loaded on site / loading</span><span class="pr-v">${ri(3,7)+h}</span>
+        <span class="pr-l">Loaded awaiting pickup</span><span class="pr-v">${ri(2,5)}</span>
+        <span class="pr-l">Inbound loaded → becoming empty</span><span class="pr-v">+${p.becE[h]}</span>
+        <span class="pr-l">Inbound empty trailers</span><span class="pr-v">+${p.inbE[h]}</span>
+        <span class="pr-l">Recoveries into location</span><span class="pr-v">+${p.rec[h]}</span>
+        <span class="pr-l">Required for scheduled outbound</span><span class="pr-v">−${p.req[h]}</span>
+        <span class="pr-l">Scheduled repositioning out</span><span class="pr-v">−${p.repo[h]}</span>
+        <span class="pr-l">Maintenance / damage holds</span><span class="pr-v">−${p.unav[h]}</span>
+        <span class="pr-l pr-strong">Projected available inventory</span><span class="pr-v pr-strong">${proj}</span>
+        <span class="pr-l">Minimum safety stock / target</span><span class="pr-v">${f.min} / ${f.target}</span>
+        <span class="pr-l pr-strong">Projected surplus (shortage)</span><span class="pr-v pr-strong ${p.surplus[h]<0?'neg':'pos'}">${p.surplus[h]>0?'+':''}${p.surplus[h]}</span>
+      </div>
+      <div class="score-wrap"><span class="mini-label">Pool health</span><div class="score-bar"><div style="width:${score}%;background:${barC}"></div></div><span class="score-num">${score}/100</span></div>
+    </div>`;
+  }).join('');
+}
+renderPool();
+document.getElementById('yardTable').innerHTML=`<thead><tr><th>Yard</th><th>Type</th><th>Spaces (occ / resv / open)</th><th>Hours</th><th>Weekend</th><th>Security</th><th>Accepts</th><th>Max dwell</th><th>Storage cost</th><th>Distance</th><th>Power-only carriers</th><th>Last audit</th><th>Discrepancies</th></tr></thead><tbody>`+
+ YARDS.map(y=>`<tr><td><b>${y.name}</b><br><span style="color:var(--muted)">${y.loc}</span></td><td>${y.type}</td><td class="num">${y.occ} / ${y.resv} / <b>${y.spaces-y.occ-y.resv}</b> of ${y.spaces}</td><td>${y.hours}</td><td>${y.weekend}</td><td>${y.sec}</td><td>${y.accepts}</td><td class="num">${y.dwell} d</td><td>${y.cost}</td><td>${y.dist}</td><td>${y.carriers}</td><td class="num">${y.audit}</td><td class="num ${y.disc>1?'neg':''}">${y.disc}</td></tr>`).join('')+'</tbody>';
+
+/* ============================================================
+   SCREEN 3 — INBOUND FORECAST
+   ============================================================ */
+const inbFacFilter=document.getElementById('inbFacFilter');
+inbFacFilter.innerHTML='<option value="">All destinations</option>'+FACILITIES.map(f=>`<option value="${f.id}">${f.name}</option>`).join('');
+function confChip(c){
+  return c==='High'?'<span class="chip chip-green"><span class="cdot"></span>High</span>':
+         c==='Medium'?'<span class="chip chip-amber"><span class="cdot"></span>Medium</span>':
+         c==='Low'?'<span class="chip chip-orange"><span class="cdot"></span>Low</span>':
+         '<span class="chip chip-red"><span class="cdot"></span>Unknown</span>';
+}
+function srcChip(s){
+  const verified=['GPS verified','Gate verified','Physical yard audit','Carrier confirmed','Customer confirmed'].includes(s);
+  return verified?`<span class="chip chip-navy"><span class="cdot"></span>${s}</span>`:`<span class="chip chip-outline">${s}</span>`;
+}
+function renderInbound(){
+  const fac=inbFacFilter.value;
+  const rows=INBOUND.filter(r=>!fac||r.destFac===fac);
+  document.getElementById('inbTable').innerHTML=`<thead><tr><th>Trailer</th><th>Owner</th><th>Load</th><th>Carrier</th><th>L / E</th><th>Origin</th><th>Destination</th><th>Sched delivery</th><th>Est delivery</th><th>Unload done</th><th>Expected empty</th><th>Recovery plan</th><th>Usable</th><th>Confidence</th><th>Last verified</th><th>Exception</th></tr></thead><tbody>`+
+  rows.map(r=>{const t=r.t;return `<tr class="rowlink" onclick="openTrailer('${t.num}')">
+    <td class="num"><b>${t.num}</b></td><td>${t.owner}</td><td class="num">${t.loadId}</td><td>${t.carrier}</td>
+    <td>${t.loaded==='Loaded'?'<span class="chip chip-navy"><span class="cdot"></span>Loaded</span>':'<span class="chip chip-gray"><span class="cdot"></span>Empty</span>'}</td>
+    <td>${r.origin}</td><td>${r.destination}</td><td class="num">${r.schedDel}</td><td class="num">${r.estDel}</td><td class="num">${r.unloadDone}</td>
+    <td class="num">${r.emptyH===0?'Now':ts(r.emptyH)}</td><td>${r.recLoc}</td><td class="num"><b>${r.usable}</b></td>
+    <td>${confChip(r.conf)}</td><td>${srcChip(t.source)}<div style="font-size:10.5px;color:var(--faint);margin-top:2px">${t.lastVerifiedH} h ago</div></td>
+    <td>${r.exception==='—'?'—':`<span class="chip chip-${r.exception.includes('Overdue')?'red':'orange'}">${r.exception}</span>`}</td></tr>`;}).join('')+'</tbody>';
+  renderTimeline(rows);
+}
+function renderTimeline(rows){
+  const within=rows.filter(r=>r.usableH<=72).slice(0,26);
+  const byFac={};FACILITIES.forEach(f=>byFac[f.id]=[]);
+  within.forEach(r=>byFac[r.destFac].push(r));
+  let html='<div class="tl-hours">'+[0,12,24,36,48,60].map(h=>`<span>+${h} h</span>`).join('')+'</div>';
+  FACILITIES.forEach(f=>{
+    html+=`<div class="tl-lane"><div class="tl-lane-label">${f.name}</div><div class="tl-track">`;
+    byFac[f.id].forEach((r,i)=>{
+      const left=Math.min(93,(r.usableH/72)*100);
+      const top=5+(i%2)*30;
+      const cls=r.conf==='High'?'':r.conf==='Medium'?'conf-med':'conf-low';
+      html+=`<div class="tl-item ${cls}" style="left:${left}%;top:${top}px" onclick="openTrailer('${r.t.num}')" title="${r.t.num} · usable ${r.usable} · ${r.conf} confidence">${r.t.num.slice(3)}</div>`;
+    });
+    html+='</div></div>';
+  });
+  document.getElementById('timeline').innerHTML=html;
+}
+renderInbound();
+
+/* ============================================================
+   TRAILER MASTER RECORD (drawer)
+   ============================================================ */
+function statusChip(code){
+  const map={EMPTY_AVAIL:'chip-green',EMPTY_RES:'chip-blue',ASSIGNED:'chip-blue',LOADING:'chip-navy',LOADED_WAIT:'chip-navy',TRANSIT:'chip-navy',DELIV_WAIT:'chip-amber',EMPTY_CUST:'chip-orange',REC_REQ:'chip-orange',REC_ASSIGN:'chip-blue',RETURNING:'chip-blue',AT_YARD:'chip-green',MAINT:'chip-gray',DAMAGE:'chip-gray',OVERDUE:'chip-red',UNKNOWN:'chip-red'};
+  return `<span class="chip ${map[code]}"><span class="cdot"></span>${STATUS_LABEL[code]}</span>`;
+}
+function openTrailer(num){
+  const t=TRAILERS.find(x=>x.num===num); if(!t)return;
+  openDrawer(
+   `<h3 class="mono">${t.num} ${statusChip(t.status)}</h3><div class="sub">${t.type} · ${t.year} · ${t.owner}</div>`,
+   `<div class="subhead">Position & custody</div>
+    <dl class="kv">
+      <dt>Current location</dt><dd>${t.location}</dd>
+      <dt>Current custody holder</dt><dd>${t.custody}</dd>
+      <dt>Last verified</dt><dd>${ts(-t.lastVerifiedH)} (${t.lastVerifiedH} h ago) · ${srcChip(t.source)}</dd>
+      <dt>GPS status</dt><dd>${t.gps==='Active'?'<span class="chip chip-green"><span class="cdot"></span>Active</span>':`<span class="chip chip-orange"><span class="cdot"></span>${t.gps}</span>`}</dd>
+      <dt>Loaded / empty</dt><dd>${t.loaded}</dd>
+    </dl>
+    <div class="subhead">Assignment</div>
+    <dl class="kv">
+      <dt>Current load ID</dt><dd class="num">${t.loadId}</dd>
+      <dt>Current carrier</dt><dd>${t.carrier}</dd>
+      <dt>Current assignment</dt><dd>${t.assignment}</dd>
+      <dt>Next planned assignment</dt><dd>${t.nextAssign}</dd>
+      <dt>Required return location</dt><dd>${t.returnLoc}</dd>
+      <dt>Interchange</dt><dd>${t.interchange}</dd>
+    </dl>
+    <div class="subhead">Condition & exposure</div>
+    <dl class="kv">
+      <dt>Damage status</dt><dd>${t.damage}</dd>
+      <dt>Maintenance status</dt><dd>${t.maint}</dd>
+      <dt>Current idle time</dt><dd class="num">${t.idleH} h</dd>
+      <dt>Current financial exposure</dt><dd class="num ${t.exposure>800?'neg':''}">${fmt$(t.exposure)}</dd>
+    </dl>
+    <div class="subhead">Recovery recommendation</div>
+    ${recoRecoHTML(t)}
+    <div class="subhead">Event history</div>
+    ${t.events.map(e=>`<div class="event"><span class="e-time">${ts(e.h)}</span><span>${e.e}</span><span class="e-src">${srcChip(e.src==='System'?'System predicted':e.src)}</span></div>`).join('')}
+    <div class="subhead">Communication history</div>
+    ${t.comms.map(c=>`<div class="event"><span class="e-time">${ts(c.h)}</span><span>${c.e}</span></div>`).join('')}
+    <p style="font-size:11.5px;color:var(--faint);margin-top:14px">Trailer location is supported by GPS, gate, yard-audit, carrier, or customer confirmation — never inferred from a shipment record alone.</p>`);
+}
+function recoRecoHTML(t){
+  if(!['EMPTY_CUST','REC_REQ','DELIV_WAIT','OVERDUE'].includes(t.status))
+    return '<div style="font-size:12.5px;color:var(--muted)">No recovery required at current status.</div>';
+  const opts=[
+    {o:'Move to Midway DC (projected shortage)',score:92,why:'Midway −6 within 24 h · 218 mi · Ridgeline available today · interchange approved'},
+    {o:'Move to Fairburn Recovery Yard',score:78,why:'14 spaces open · $142/mo · positions trailer for Thu outbound demand'},
+    {o:'Return to origin facility',score:54,why:'Longest deadhead · no near-term demand at origin'},
+    {o:'Hold for planned future Hasbro load',score:41,why:'No compatible planned load within max permitted dwell'}
+  ];
+  return `<table style="font-size:12.3px"><thead><tr><th>Option</th><th>Score</th><th>Rationale</th></tr></thead><tbody>`+
+    opts.map((o,i)=>`<tr ${i===0?'style="background:var(--green-bg)"':''}><td style="white-space:normal">${i===0?'<b>✓ Recommended: </b>':''}${o.o}</td><td class="num"><b>${o.score}</b></td><td style="white-space:normal;color:var(--muted)">${o.why}</td></tr>`).join('')+
+    `</tbody></table><div style="font-size:11.5px;color:var(--faint);margin-top:6px">Scored on recovery cost, distance, recovery time, facility demand, yard capacity, ownership rules, interchange approval, customer restrictions, carrier availability, and urgency. Radius default 100 mi (configurable). Full, closed, unauthorized, or incompatible yards are excluded.</div>`;
+}
+
+/* ============================================================
+   SCREEN 4 — RECOVERY QUEUE
+   ============================================================ */
+document.getElementById('recCount').textContent=QUEUE.filter(q=>q.esc>=4).length;
+document.getElementById('rqFac').innerHTML='<option value="">All recovery destinations</option>'+[...new Set(QUEUE.map(q=>q.dest))].map(d=>`<option>${d}</option>`).join('');
+document.getElementById('rqOwner').innerHTML='<option value="">All BHD owners</option>'+BHD_OPS.map(o=>`<option>${o}</option>`).join('');
+const ESC_LABEL={1:'L1 · Plan required',2:'L2 · Dwell exceeded',3:'L3 · Exposure approaching',4:'L4 · Overdue — inventory risk',5:'L5 · Location unknown'};
+function escChip(l){const c=l>=5?'chip-red':l===4?'chip-red':l===3?'chip-orange':l===2?'chip-amber':'chip-gray';return `<span class="chip ${c}">${ESC_LABEL[l]}</span>`;}
+document.getElementById('demoScenario').innerHTML=`
+  <div class="card-title" style="margin-bottom:2px">Today's network play — Midway, GA <span class="chip chip-red">Projected −6 trailers tomorrow</span></div>
+  <p style="font-size:12.8px;color:var(--muted);max-width:900px">Three trailers are expected to become empty at customer locations near Atlanta. Two loaded trailers are inbound from Elwood. One recovery move is overdue. The control tower recommends recovering the three Atlanta-area trailers to Midway and assigning a backup power-only carrier to the overdue recovery.</p>
+  <div class="demo-flow">
+    <div class="flow-step"><div class="fs-n">1</div><h5>Recover 3 Atlanta-area empties → Midway</h5><p>HZT53228 · HZT53231 · HZT53236 at Amazon MGE1, Target Newton &amp; Walmart Statesboro. Ridgeline Power Only, appt 14:00–20:00 today. Est. $1,140 total.</p></div>
+    <div class="flow-step"><div class="fs-n">2</div><h5>Confirm 2 inbound from Elwood</h5><p>BHD-40233 / BHD-40241 ETA tonight 21:40 &amp; 23:15 (GPS verified, high confidence). First-thing unload requested Jul 16.</p></div>
+    <div class="flow-step"><div class="fs-n">3</div><h5>Re-cover the overdue Charlotte recovery</h5><p>HZT53289 overdue 26 h at Charlotte yard lane. Assign backup power-only (Bay State) · escalate original carrier to L4.</p></div>
+    <div class="flow-step"><div class="fs-n">✓</div><h5>Projected result</h5><p>Midway position improves from −6 to <b>−1</b> by 07:00 tomorrow and to <b>+1</b> by 14:00 — Jul 16 loading plan protected.</p></div>
+  </div>
+  <div style="margin-top:12px;display:flex;gap:8px"><button class="btn btn-lime" onclick="toast('Recovery plan approved — 3 recovery orders created, backup carrier tendered, owners notified.')">Approve recovery plan</button><button class="btn" onclick="openTrailer('HZT53228')">Review first trailer</button></div>`;
+function renderQueue(){
+  const f=document.getElementById('rqFac').value, e=document.getElementById('rqEsc').value, o=document.getElementById('rqOwner').value;
+  let rows=QUEUE.filter(q=>(!f||q.dest===f)&&(!e||q.esc===+e)&&(!o||q.owner===o));
+  if(currentRole.id==='partner') rows=rows.filter(q=>q.recCarrier==='Ridgeline Power Only');
+  document.getElementById('rqCountHint').textContent=rows.length+' trailers · every exception has a named owner, required action & deadline';
+  document.getElementById('rqTable').innerHTML=`<thead><tr><th>Pri</th><th>Trailer</th><th>Owner (asset)</th><th>Custody</th><th>Current location</th><th>Delivered</th><th>Unloaded</th><th>Hrs at loc</th><th>Free time</th><th>Recovery dest</th><th>Dist</th><th>Yard cap</th><th>Recovery carrier</th><th>Appt</th><th>Est cost</th><th>BHD owner</th><th>Next action</th><th>Deadline</th><th>Escalation</th><th>Exposure</th><th></th></tr></thead><tbody>`+
+  rows.map((q,i)=>{const t=q.t;return `<tr class="rowlink" onclick="openException(${QUEUE.indexOf(q)})">
+   <td><b>${q.priority}</b></td><td class="num"><b>${t.num}</b></td><td>${t.owner}</td><td>${t.custody}</td><td style="white-space:normal;min-width:160px">${t.location}</td>
+   <td class="num">${q.deliveredAt}</td><td class="num">${q.unloadedAt}</td><td class="num">${t.idleH}</td>
+   <td class="num ${q.freeTime===0?'neg':''}">${q.freeTime} h</td><td>${q.dest}</td><td class="num">${q.dist}</td><td>${q.yardCap}</td>
+   <td>${q.recCarrier}</td><td class="num">${q.appt}</td><td class="num">${q.cost}</td><td>${q.owner}</td>
+   <td style="white-space:normal;min-width:190px">${q.nextAction}</td><td class="num">${q.deadline}</td><td>${escChip(q.esc)}</td>
+   <td class="num ${t.exposure>800?'neg':''}">${fmt$(t.exposure)}</td>
+   <td><button class="btn btn-sm" onclick="event.stopPropagation();openException(${QUEUE.indexOf(q)})">Open</button></td></tr>`;}).join('')+'</tbody>';
+}
+function openException(idx){
+  const q=QUEUE[idx],t=q.t;
+  openDrawer(
+   `<h3>Exception · <span class="mono">${t.num}</span> ${escChip(q.esc)}</h3><div class="sub">${q.impact} · financial exposure ${fmt$(t.exposure)}</div>`,
+   `<div class="subhead">Required action</div>
+    <div class="card card-pad" style="box-shadow:none">
+      <b style="font-size:13.5px">${q.nextAction}</b>
+      <dl class="kv" style="margin-top:10px">
+        <dt>Named owner</dt><dd><select class="select" id="excOwner">${BHD_OPS.map(o=>`<option ${o===q.owner?'selected':''}>${o}</option>`).join('')}</select></dd>
+        <dt>Deadline</dt><dd class="num">${q.deadline}</dd>
+        <dt>Escalation path</dt><dd>L${q.esc} now → auto-escalates to L${Math.min(5,q.esc+1)} if deadline missed → ops manager page-out at L4+</dd>
+        <dt>Operational impact</dt><dd>${q.impact}</dd>
+      </dl>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="btn btn-navy" onclick="toast('Exception acknowledged — activity logged with timestamp & user.')">Acknowledge</button>
+        <button class="btn" onclick="toast('Owner reassigned to '+document.getElementById('excOwner').value+' — notification sent.')">Assign owner</button>
+        <button class="btn" onclick="openTrailer('${t.num}')">Open trailer record</button>
+      </div>
+    </div>
+    <div class="subhead">Recovery details</div>
+    <dl class="kv">
+      <dt>Current location</dt><dd>${t.location}</dd>
+      <dt>Delivered</dt><dd class="num">${q.deliveredAt}</dd>
+      <dt>Unloaded</dt><dd class="num">${q.unloadedAt}</dd>
+      <dt>Hours at location</dt><dd class="num">${t.idleH} h · free time remaining ${q.freeTime} h</dd>
+      <dt>Planned recovery destination</dt><dd>${q.dest} (${q.dist} · yard capacity ${q.yardCap})</dd>
+      <dt>Recovery carrier / appt</dt><dd>${q.recCarrier} · ${q.appt}</dd>
+      <dt>Expected recovery cost</dt><dd class="num">${q.cost}</dd>
+      <dt>Last communication</dt><dd>${q.lastComm}</dd>
+    </dl>
+    <div class="subhead">Complete activity history</div>
+    ${[['-0.4','Exception auto-escalated to L'+q.esc+' — rule: '+ESC_LABEL[q.esc].split('· ')[1]],
+       ['-3',q.lastComm.split(' · ')[1]+' — logged by '+q.owner],
+       ['-9','Recovery destination scored & selected: '+q.dest],
+       ['-16','Exception created by forecast engine — dwell exceeded expectation'],
+       ['-'+t.idleH,'Trailer reported empty at customer']].map(e=>`<div class="event"><span class="e-time">${ts(+e[0])}</span><span>${e[1]}</span></div>`).join('')}`);
+}
+renderQueue();
+
+/* ============================================================
+   SCREEN 5 — ECONOMICS
+   ============================================================ */
+function goSub(id){document.querySelectorAll('.subtab').forEach(t=>t.classList.toggle('active',t.dataset.sub===id));['model','commercial','intake'].forEach(s=>document.getElementById('sub-'+s).style.display=s===id?'':'none');}
+const A={lease:720,rental:55,parking:145,recMile:2.35,repoMile:2.10,detention:60,gps:18,count:120,spaces:40,idleRed:25,turnsImp:15,recTimeRed:30,detMo:18500,recMo:22000,emergMo:9600,implFee:45000,mgdFee:18500};
+const ASSUMP_DEFS=[
+ ['lease','Monthly trailer lease cost ($/trailer)'],['rental','Daily short-term rental ($)'],['parking','Monthly parking per trailer ($)'],
+ ['recMile','Recovery cost per mile ($)'],['repoMile','Empty repositioning per mile ($)'],['detention','Trailer detention rate ($/day)'],
+ ['gps','GPS cost per trailer ($/mo)'],['count','Current number of trailers'],['spaces','Current rented yard spaces'],
+ ['idleRed','Target reduction in idle trailers (%)'],['turnsImp','Target improvement in trailer turns (%)'],['recTimeRed','Target reduction in avg recovery time (%)'],
+ ['detMo','Est. monthly detention & per diem ($)'],['recMo','Est. monthly recovery transport ($)'],['emergMo','Est. monthly emergency rentals ($)'],
+ ['implFee','BHD one-time implementation fee ($)'],['mgdFee','BHD monthly managed-service fee ($)']
+];
+function renderModel(){
+  const cur = {
+    lease:A.count*A.lease, parking:A.spaces*A.parking, det:A.detMo, rec:A.recMo, emerg:A.emergMo, gps:A.count*A.gps
+  };
+  const curTotal=Object.values(cur).reduce((a,b)=>a+b,0);
+  const prop={
+    pool:Math.round(A.count*(1-A.idleRed/100))*A.lease,
+    yard:Math.round(A.spaces*0.6)*A.parking,
+    rec:Math.round(A.recMo*(1-A.recTimeRed/200)),
+    gps:A.count*A.gps, mgd:A.mgdFee
+  };
+  const propTotal=Object.values(prop).reduce((a,b)=>a+b,0);
+  const gross=curTotal-(propTotal-prop.mgd);
+  const net=curTotal-propTotal;
+  const payback=net>0?(A.implFee/net).toFixed(1):'—';
+  const usableDays=A.count*30*0.82, turns=A.count*2.4*(1+A.turnsImp/100);
+  const awaiting='<span class="awaiting">Awaiting Hasbro cost data</span>';
+  document.getElementById('sub-model').innerHTML=`
+  <div class="two-col">
+    <div class="card">
+      <div class="card-pad card-title">1 · Current-state cost baseline <span class="chip chip-amber">Demonstration assumptions</span></div>
+      <div class="tbl-wrap"><table class="fin-table"><tbody>
+        <tr><td>Trailer lease &amp; rental (${A.count} × ${fmt$(A.lease)})</td><td class="num" style="text-align:right">${fmt$(cur.lease)}</td></tr>
+        <tr><td>Outside yard storage &amp; parking (${A.spaces} spaces)</td><td class="num" style="text-align:right">${fmt$(cur.parking)}</td></tr>
+        <tr><td>Trailer detention &amp; per diem (est.)</td><td class="num" style="text-align:right">${fmt$(cur.det)}</td></tr>
+        <tr><td>Recovery transportation (est.)</td><td class="num" style="text-align:right">${fmt$(cur.rec)}</td></tr>
+        <tr><td>Emergency trailer rentals (est.)</td><td class="num" style="text-align:right">${fmt$(cur.emerg)}</td></tr>
+        <tr><td>GPS &amp; tracking (${A.count} × ${fmt$(A.gps)})</td><td class="num" style="text-align:right">${fmt$(cur.gps)}</td></tr>
+        <tr><td>Empty repositioning</td><td style="text-align:right">${awaiting}</td></tr>
+        <tr><td>Maintenance &amp; damage</td><td style="text-align:right">${awaiting}</td></tr>
+        <tr><td>Expedite caused by trailer shortages</td><td style="text-align:right">${awaiting}</td></tr>
+        <tr><td>Administrative labor (where measurable)</td><td style="text-align:right">${awaiting}</td></tr>
+        <tr><td><b>Modeled current monthly network cost</b></td><td class="num" style="text-align:right"><b>${fmt$(curTotal)}</b></td></tr>
+      </tbody></table></div>
+    </div>
+    <div class="card">
+      <div class="card-pad card-title">2 · Proposed managed-network cost <span class="chip chip-blue">BHD-operated</span></div>
+      <div class="tbl-wrap"><table class="fin-table"><tbody>
+        <tr><td>Optimized trailer-pool expense (−${A.idleRed}% idle units)</td><td class="num" style="text-align:right">${fmt$(prop.pool)}</td></tr>
+        <tr><td>Optimized yard footprint (−40% spaces)</td><td class="num" style="text-align:right">${fmt$(prop.yard)}</td></tr>
+        <tr><td>Planned recovery transportation</td><td class="num" style="text-align:right">${fmt$(prop.rec)}</td></tr>
+        <tr><td>GPS &amp; data services</td><td class="num" style="text-align:right">${fmt$(prop.gps)}</td></tr>
+        <tr><td>Backhaul Direct monthly managed-service fee</td><td class="num" style="text-align:right">${fmt$(prop.mgd)}</td></tr>
+        <tr><td>Backhaul Direct implementation fee (one-time)</td><td class="num" style="text-align:right">${fmt$(A.implFee)}</td></tr>
+        <tr><td>Optional after-hours coverage</td><td style="text-align:right"><span class="awaiting">Optional — scoped at pilot</span></td></tr>
+        <tr><td>Direct pass-through expenses</td><td style="text-align:right"><span class="awaiting">Billed at cost</span></td></tr>
+        <tr><td><b>Modeled proposed monthly network cost</b></td><td class="num" style="text-align:right"><b>${fmt$(propTotal)}</b></td></tr>
+      </tbody></table></div>
+    </div>
+  </div>
+  <div class="section-gap card card-pad">
+    <div class="card-title">Editable assumptions <span class="hint">Change any value — the model recalculates instantly. Actual data replaces these without redesign.</span></div>
+    <div class="assump-grid" style="margin-top:12px">${ASSUMP_DEFS.map(([k,l])=>`<div class="assump"><label>${l}</label><input type="number" value="${A[k]}" onchange="A['${k}']=+this.value;renderModel()"></div>`).join('')}</div>
+  </div>
+  <div class="section-gap card card-pad">
+    <div class="card-title">Modeled results <span class="chip chip-amber">Preliminary — synthetic baseline</span></div>
+    <div class="calc-grid" style="margin-top:12px">
+      ${[['Current monthly cost',fmt$(curTotal)],['Proposed monthly cost',fmt$(propTotal)],['Gross monthly savings',fmt$(gross)],['BHD managed fee',fmt$(prop.mgd)],['Net Hasbro savings / mo',fmt$(net)],['Annualized net savings',fmt$(net*12)],['Payback period',payback+' mo'],['Cost per controlled trailer',fmt$(propTotal/A.count)],['Cost per usable trailer day','$'+(propTotal/usableDays).toFixed(2)],['Cost per trailer turn','$'+(propTotal/turns).toFixed(0)]].map(c=>`<div class="calc-cell"><div class="cl">${c[0]}</div><div class="cv">${c[1]}</div></div>`).join('')}
+    </div>
+  </div>
+  <div class="section-gap two-col" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr))">
+    ${[['Conservative','−15% idle · +8% turns'],['Expected','−25% idle · +15% turns'],['Upside','−35% idle · +22% turns']].map(s=>`
+      <div class="card scenario"><span class="lock chip chip-gray">🔒 Preliminary</span><h4>${s[0]} scenario</h4><p style="font-size:12.3px;color:var(--muted);margin-top:4px">${s[1]}</p>
+      <p style="font-size:12px;color:var(--faint);margin-top:10px">Disabled until Hasbro's validated current-state baseline is inserted.</p></div>`).join('')}
+  </div>`;
+}
+renderModel(); goSub('model');
+
+/* ---- commercial & pilot ---- */
+document.getElementById('sub-commercial').innerHTML=`
+ <div class="card card-pad">
+   <div class="card-title">A managed service, not just software</div>
+   <p style="font-size:13px;margin-top:8px;max-width:900px">Backhaul Direct will provide the technology, operating process, recovery execution, exception ownership, forecasting, and business intelligence required to keep Hasbro's trailer network circulating.</p>
+ </div>
+ <div class="section-gap two-col">
+   <div class="card card-pad">
+     <div class="card-title">Phase One — 90-day Midway pilot</div>
+     <table style="margin-top:10px"><tbody>
+       <tr><td>One-time implementation fee</td><td class="awaiting" style="text-align:right">Placeholder — pending scope</td></tr>
+       <tr><td>Monthly managed-control-tower fee</td><td class="awaiting" style="text-align:right">Placeholder — pending scope</td></tr>
+       <tr><td>Direct pass-through equipment, yard &amp; recovery costs</td><td class="awaiting" style="text-align:right">Billed at cost</td></tr>
+       <tr><td>Optional gainshare on independently validated hard-dollar savings</td><td class="awaiting" style="text-align:right">To be discussed</td></tr>
+     </tbody></table>
+   </div>
+   <div class="card card-pad">
+     <div class="card-title">Phase Two — Expanded network</div>
+     <ul class="checklist" style="margin-top:10px">
+       <li>Midway, GA</li><li>Elwood, IL</li><li>Chino, CA</li><li>East Longmeadow, MA</li>
+       <li>Approved customer recovery markets and yards</li>
+     </ul>
+     <p style="font-size:12.3px;color:var(--muted);margin-top:10px">Final commercial terms will be based on trailer count, shipment volume, operating hours, integration requirements, recovery scope, and the validated current-state cost baseline.</p>
+   </div>
+ </div>
+ <div class="section-gap card card-pad">
+   <div class="card-title">Pilot scorecard <span class="chip chip-amber">Preliminary targets — subject to baseline validation</span></div>
+   <div class="tbl-wrap" style="margin-top:10px"><table><thead><tr><th>Metric</th><th>Preliminary target</th><th>Measured how</th></tr></thead><tbody>
+     ${[['Trailers with known or confidently predicted status','≥ 97%','Daily status audit vs GPS/gate/yard confirmations'],
+        ['Average customer-to-recovery cycle time','≤ 36 h','Empty-at-customer timestamp → gate-in at recovery point'],
+        ['Trailers recovered within SLA','≥ 92%','Recovery orders closed vs SLA clock'],
+        ['Trailer turns per month','+15% vs baseline','Loads per trailer, network-wide'],
+        ['Idle trailer days','−25% vs baseline','Days in Empty/idle statuses'],
+        ['Outside-storage days','−30% vs baseline','Yard occupancy ledger'],
+        ['Emergency trailer rentals','−50% vs baseline','Rental invoices'],
+        ['Trailer shortage events','0 shipping interruptions','Missed/late loading plans caused by equipment'],
+        ['Missed loading plans (equipment-caused)','0','Facility ops log'],
+        ['Forecast accuracy (availability)','≥ 85% within ±4 h','Predicted vs actual usable time'],
+        ['Recovery cost per move','Baseline − validated target','Recovery order actuals'],
+        ['Cost per usable trailer day','Trending down MoM','Financial model'],
+        ['Exceptions with named owner & next action','100%','Queue audit — no unowned exceptions']]
+       .map(r=>`<tr><td>${r[0]}</td><td class="num">${r[1]}</td><td style="color:var(--muted)">${r[2]}</td></tr>`).join('')}
+   </tbody></table></div>
+ </div>
+ <div class="section-gap two-col">
+   <div class="card card-pad">
+     <div class="card-title">Assumptions to validate when the full dataset arrives</div>
+     <ul class="checklist" style="margin-top:10px">
+       <li>≈50/50 split of WH→WH vs WH→customer truckload volume</li>
+       <li>Share of customer deliveries within 100 mi of a facility, carrier yard, or approved recovery yard</li>
+       <li>Average customer unload dwell by customer and lane</li>
+       <li>Current trailer count actually required vs deployed</li>
+       <li>Current idle-trailer days and turns per month</li>
+       <li>Detention / per diem actually incurred vs invoiced</li>
+       <li>Yard occupancy vs contracted spaces</li>
+       <li>Carrier interchange permissions by owner and carrier</li>
+       <li>Seasonality / peak profile of outbound demand</li>
+     </ul>
+   </div>
+   <div class="card card-pad">
+     <div class="card-title">Questions to answer before final pricing</div>
+     <ul class="checklist" style="margin-top:10px">
+       <li>Validated current-state monthly cost baseline (all ten categories)</li>
+       <li>Trailer count in scope & ownership mix (leased / carrier / pool)</li>
+       <li>Operating hours & after-hours coverage requirements</li>
+       <li>Integration scope: TMS, WMS, gate systems, GPS/telematics vendors</li>
+       <li>Recovery scope: which markets, radius setting, power-only network</li>
+       <li>Who holds trailer leases going forward — Hasbro, BHD, or hybrid</li>
+       <li>Gainshare measurement methodology & independent validation</li>
+       <li>Pilot success thresholds that trigger Phase Two expansion</li>
+     </ul>
+   </div>
+ </div>`;
+
+/* ---- data intake checklist ---- */
+document.getElementById('sub-intake').innerHTML=`
+ <div class="card card-pad">
+   <div class="card-title">Implementation data checklist <span class="hint">Exact fields required from Hasbro & Backhaul Direct before go-live</span></div>
+   <div class="check-cols" style="margin-top:12px">
+     <div><div class="subhead">1 · Truckload shipment history (6 mo)</div><ul class="checklist">
+       <li>Load ID</li><li>Origin / destination</li><li>Warehouse vs customer classification</li><li>Tender date / acceptance date</li><li>Scheduled &amp; actual pickup</li><li>Scheduled &amp; actual delivery</li><li>Carrier</li><li>Trailer number</li><li>Drop vs live at origin</li><li>Drop vs live at destination</li><li>Customer charges / carrier charges</li><li>Accessorials &amp; detention</li><li>Cancellations &amp; service-failure reasons</li><li>Tracking events</li></ul></div>
+     <div><div class="subhead">2 · Trailer &amp; yard data</div><ul class="checklist">
+       <li>Trailer number &amp; owner</li><li>Current status &amp; location</li><li>Custody holder</li><li>Gate in / gate out</li><li>Loaded or empty</li><li>GPS location</li><li>Yard position</li><li>Maintenance &amp; damage status</li><li>Interchange permissions</li><li>Required return location</li></ul></div>
+     <div><div class="subhead">3 · Cost data</div><ul class="checklist">
+       <li>Rental &amp; lease invoices</li><li>Yard &amp; parking invoices</li><li>Detention &amp; per diem</li><li>Recovery transportation</li><li>Empty repositioning</li><li>Emergency rentals</li><li>GPS fees</li><li>Maintenance &amp; damage</li><li>Expedite expense</li><li>Existing staffing / administrative expense</li></ul></div>
+     <div><div class="subhead">4 · Forecast data</div><ul class="checklist">
+       <li>Planned outbound loads</li><li>Origin &amp; requested ship date</li><li>Trailer type</li><li>Destination &amp; customer</li><li>Priority</li><li>Peak-season forecasts</li><li>Facility safety-stock targets</li></ul></div>
+   </div>
+ </div>
+ <div class="section-gap card card-pad">
+   <div class="card-title">Data architecture principles</div>
+   <p style="font-size:12.8px;color:var(--muted);margin-top:8px;max-width:980px">Shipment, Trailer, Facility, Customer, Yard, Carrier, Trailer Event, Gate Event, GPS Event, Recovery Order, Exception, User, Cost Transaction, Forecast, Forecast Result, and Communication Event are kept as separate but related objects with unique identifiers and timestamps. A shipment record is never assumed to prove trailer location — position must be supported by a GPS event, gate event, physical yard confirmation, carrier confirmation, customer confirmation, or an authorized manual update.</p>
+ </div>`;
+
+/* ============================================================
+   NETWORK ANALYTICS (drilldown modal)
+   ============================================================ */
+function openAnalytics(){
+  const filters=`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+    ${['All facilities|Midway|Elwood|Chino|East Longmeadow','All customers|Walmart|Target|Amazon|Other','All carriers','All yards','Move type: All|WH→WH|WH→Customer','Period: Jun 2026|May 2026|Q2 2026','Peak vs non-peak: All'].map(f=>{const o=f.split('|');return `<select class="select" onchange="toast('Analytics recalculated for selected filters (demonstration data).')">${o.map(x=>`<option>${x}</option>`).join('')}</select>`;}).join('')}
+  </div>`;
+  const m=[['Trailer cycle time','6.4 d'],['Loads per trailer / wk','1.9'],['Trailer turns / mo','2.4'],['Loaded utilization','61%'],['Empty utilization','17%'],['Idle trailer days (MTD)','412'],['Avg customer unload dwell','26.3 h'],['Avg recovery time','41.2 h'],['Recovery SLA compliance','88%'],['Empty repositioning miles (MTD)','9,140'],['Storage days (MTD)','688'],['Outside-yard utilization','71%'],['Trailer shortage events (MTD)','3'],['Forecast accuracy','83%'],['Tracking compliance','91%'],['On-time pickup','94.2%'],['On-time delivery','95.6%'],['Cost per load','$187 alloc.'],['Cost per recovery','$318'],['Cost per trailer turn','$121'],['Cost per usable trailer day','$9.60']];
+  const fp=[['Predicted vs actual arrival','±3.1 h median error'],['Predicted vs actual empty time','±5.4 h median error'],['Predicted vs actual availability','83% within ±4 h'],['Predicted vs actual facility shortage','5 of 6 called correctly'],['Predicted vs actual unload dwell','±6.2 h median error'],['Predicted vs actual recovery completion','79% within window']];
+  openModal('Network analytics & forecast performance — demonstration data',
+   filters+`<div class="calc-grid">${m.map(x=>`<div class="calc-cell"><div class="cl">${x[0]}</div><div class="cv" style="font-size:15px">${x[1]}</div></div>`).join('')}</div>
+   <div class="subhead" style="margin-top:18px">Forecast performance — the platform measures its own prediction accuracy</div>
+   <div class="calc-grid">${fp.map(x=>`<div class="calc-cell"><div class="cl">${x[0]}</div><div class="cv" style="font-size:14px">${x[1]}</div></div>`).join('')}</div>`);
+}
+</script>
+</body>
+</html>
